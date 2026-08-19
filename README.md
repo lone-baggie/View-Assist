@@ -1,6 +1,6 @@
 # View Assist - Home Assistant Blueprints & Automations
 
-A lightweight, modular collection of Home Assistant blueprints designed to handle visual feedback, event routing, and context switching for View Assist voice satellites.
+A collection of Blueprints and dashboard layouts for View Assist
 
 ---
 
