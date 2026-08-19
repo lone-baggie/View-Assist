@@ -1,0 +1,72 @@
+blueprint:
+  name: View Assist - Auto Switch to Alarms Dashboard
+  description: >
+    Displays the Alarms page when an alarm is being changed
+  domain: automation
+  input:
+    alarm_count_sensor:
+      name: Alarm Count Sensor
+      description: The main sensor tracking the total number of alarms (e.g., sensor.list_alarms).
+      selector:
+        entity:
+          integration: voice_alarms
+          domain: sensor
+    view_assist_sensors:
+      name: View Assist Display Sensors
+      description: Select all Facebook Portal View Assist sensors (e.g., sensor.portal_white, sensor.portal_black).
+      selector:
+        entity:
+          integration: view_assist
+          domain: sensor
+          multiple: true
+    dashboard_path:
+      name: Dashboard Path
+      description: The view path to navigate to on View Assist.
+      default: "/view-assist/voice-alarms"
+      selector:
+        text:
+    revert_timeout:
+      name: Revert Timeout
+      description: Seconds before the display reverts to the default dashboard view.
+      default: 30
+      selector:
+        number:
+          min: 0
+          max: 999
+          unit_of_measurement: seconds
+
+mode: single
+
+trigger:
+  - platform: state
+    entity_id: !input alarm_count_sensor
+
+condition: []
+
+action:
+  # Compute which View Assist display sensor corresponds to the active voice satellite
+  - variables:
+      display_entities: !input view_assist_sensors
+      active_display: >
+        {% set result = namespace(target="") %}
+        {% for display in display_entities %}
+          {% set satellite_id = state_attr(display, 'voice_device_id') %}
+          {% if satellite_id is not none %}
+            {# Convert device_id to entity_id and check if it's currently active #}
+            {% set satellite_entity = device_entities(satellite_id) | select('match', '^(assist_satellite|media_player)\\.') | first %}
+            {% if satellite_entity is defined and states(satellite_entity) not in ['idle', 'off', 'unavailable', 'unknown'] %}
+              {% set result.target = display %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {{ result.target }}
+
+  # Only navigate if an active satellite/display was matched
+  - condition: template
+    value_template: "{{ active_display != '' }}"
+
+  - action: view_assist.navigate
+    data:
+      device: "{{ active_display }}"
+      path: !input dashboard_path
+      revert_timeout: !input revert_timeout

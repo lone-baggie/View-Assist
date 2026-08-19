@@ -1,0 +1,176 @@
+blueprint:
+  name: "View Assist LLM YouTube Portal Launcher"
+  description: "High-performance voice control to search and launch YouTube videos on Facebook Portals via LLM structured extraction and View Assist Navigation."
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+  input:
+    # ==================================================================
+    # SECTION 1: Target Entities & AI Engine
+    # ==================================================================
+    target_entities_section:
+      name: Target Entities & AI Engine
+      description: Configure target state bus helpers, portal sensors, and the local AI Task entity.
+      icon: mdi:youtube
+      collapsed: false
+      input:
+        default_target_sensor:
+          name: Fallback Portal Sensor
+          description: Fallback View Assist portal sensor if the command did not originate from a matched satellite sensor.
+          selector:
+            entity:
+              integration: view_assist
+              domain: sensor
+
+        portal_sensors:
+          name: View Assist Portal Sensors
+          description: Select all View Assist portal sensors (e.g., sensor.portal_black, sensor.portal_white).
+          selector:
+            entity:
+              integration: view_assist
+              domain: sensor
+              multiple: true
+
+        ai_task_entity:
+          name: AI Task Entity
+          description: The AI Task entity (ai_task domain) on your Jetson Nano used to extract search parameters.
+          selector:
+            entity:
+              domain: ai_task
+
+    # ==================================================================
+    # SECTION 2: Voice Command Triggers
+    # ==================================================================
+    voice_triggers_section:
+      name: Voice Command Triggers
+      description: Sentence patterns that trigger YouTube video searches.
+      icon: mdi:account-voice
+      collapsed: false
+      input:
+        play_video_sentences:
+          name: Play Video Trigger Sentences
+          description: Custom sentences sent to the conversation engine.
+          default:
+            - "play video [of|about|for] {query}"
+            - "play {query} video"
+            - "play youtube [video] [of|about|for] {query}"
+            - "search video [of|about|for] {query}"
+            - "show [me] [a] video [of|about|for] {query}"
+            - "watch [a] video [of|about|for] {query}"
+            - "watch {query} [on youtube]"
+          selector:
+            text:
+              multiple: true
+
+# ----------------------------------------------------------------------
+# Dynamic Triggers
+# ----------------------------------------------------------------------
+trigger:
+  - trigger: conversation
+    command: !input play_video_sentences
+    id: play_video_intent
+
+# ----------------------------------------------------------------------
+# Action Pipeline
+# ----------------------------------------------------------------------
+action:
+  # Step 1: Bind Blueprint inputs & dynamically resolve Portal Sensor
+  - alias: "Process Blueprint Inputs & Resolve Satellite Target"
+    variables:
+      default_sensor: !input default_target_sensor
+      ai_engine: !input ai_task_entity
+      sensor_list: !input portal_sensors
+      raw_sentence: "{{ trigger.sentence }}"
+      slot_query: "{{ trigger.slots.query | default('', true) }}"
+
+      # Identify trigger device ID from Home Assistant voice pipeline
+      trig_dev_id: "{{ trigger.device_id | default('', true) }}"
+
+      # Match View Assist sensor where 'voice_device_id' matches trigger.device_id
+      matched_sensor: >-
+        {{ sensor_list | select('is_state_attr', 'voice_device_id', trig_dev_id) | first | default(default_sensor) }}
+
+  # Step 2: Parse Normalized Command via Home Assistant AI Task (Jetson Nano / Ollama)
+  - alias: "Extract Video Query via Ollama AI Task"
+    action: ai_task.generate_data
+    continue_on_error: true
+    data:
+      entity_id: "{{ ai_engine }}"
+      task_name: "youtube_video_parser"
+      instructions: >-
+        You are an intent extraction engine for Home Assistant voice video playback.
+        Extract the core video search query or YouTube video ID from the user's spoken sentence: "{{ raw_sentence }}"
+
+        RULES FOR EXTRACTION:
+        1. "search_query": Clean up and extract the main search query (remove filler words like "play video", "on youtube", "show me", "of", "about").
+        2. "video_id": If the user explicitly mentions a specific 11-character YouTube video ID, extract it. Otherwise, leave empty.
+      structure:
+        search_query:
+          description: "Cleaned video search terms"
+          required: true
+          selector:
+            text: {}
+        video_id:
+          description: "Explicit 11-character YouTube video ID if present"
+          required: false
+          selector:
+            text: {}
+    response_variable: parsed_intent
+
+  # Step 3: Format the YouTube Deep Link URL safely with Jinja2
+  - alias: "Construct Deep Link Scheme"
+    variables:
+      # Extract raw video_id value from AI output
+      raw_id_candidate: >-
+        {% if parsed_intent is defined and parsed_intent.data is defined and parsed_intent.data.video_id is defined %}
+          {{ parsed_intent.data.video_id | string | trim }}
+        {% else %}
+          
+        {% endif %}
+
+      # Valid YouTube IDs are exactly 11 base64/URL-safe characters. Tested using HA's Jinja 'match' filter.
+      extracted_id: >-
+        {% if raw_id_candidate is match('^[a-zA-Z0-9_-]{11}$') %}
+          {{ raw_id_candidate }}
+        {% else %}
+          
+        {% endif %}
+
+      # Safe search_query resolution: AI output -> trigger slot -> raw sentence regex fallback
+      raw_query_candidate: >-
+        {% if parsed_intent is defined and parsed_intent.data is defined and parsed_intent.data.search_query is defined %}
+          {{ parsed_intent.data.search_query | string | trim }}
+        {% else %}
+          
+        {% endif %}
+
+      extracted_query: >-
+        {% if raw_query_candidate not in ['', 'null', 'None', 'none'] %}
+          {{ raw_query_candidate }}
+        {% elif slot_query != '' %}
+          {{ slot_query | string | trim }}
+        {% else %}
+          {{ raw_sentence | regex_replace(find='^(play|watch|show|search)\\s+(video|youtube)?\\s*(of|about|for)?\\s*', replace='', ignorecase=True) | trim }}
+        {% endif %}
+
+      # Build HTTP Target URL that Android routes to SmartTube
+      final_navigate_path: >-
+        {% if extracted_id != '' %}
+          https://www.youtube.com/watch?v={{ extracted_id }}
+        {% else %}
+          https://www.youtube.com/results?search_query={{ extracted_query | urlencode }}
+        {% endif %}
+
+  # Step 4: Trigger View Assist Navigation directly on the Facebook Portal
+  - alias: "Navigate View Assist Portal to SmartTube Deep Link"
+    action: view_assist.navigate
+    data:
+      device: "{{ matched_sensor }}"
+      path: "{{ final_navigate_path }}"
+      revert_timeout: 10
+
+  # Step 5: Audio Voice Confirmation back to Satellite
+  - alias: "Set Voice Assistant Response"
+    set_conversation_response: "Searching YouTube for {{ extracted_query }}."
+
+mode: single

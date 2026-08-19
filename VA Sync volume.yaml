@@ -1,0 +1,54 @@
+blueprint:
+  name: View Assist Volume Sync
+  description: >-
+    Syncs the volume of the pysical volume of the device to the media player. If using Music assistant
+  author: Lonebaggie
+  homeassistant:
+    min_version: 2024.6.0
+  domain: automation
+  input:
+    volume_number:
+      name: Volume Number Entity
+      description: The hardware volume of device (normally music volume).
+      selector:
+        entity:
+          integration: vaca
+          domain: number
+          multiple: true
+mode: single
+
+# Declare blueprint inputs as Jinja-accessible variables
+triggers:
+  - trigger: state
+    entity_id: !input volume_number
+
+
+
+actions:
+  - variables:
+     max_volume_steps: 18
+     volume: "{{trigger.entity_id}}"
+     # Extract the unique object_id part (e.g. "vaca_cc1617ae5_music_volume" from "number.vaca_cc1617ae5_music_volume")
+     # and strip the suffix "_music_volume" to get the core device slug.
+     device_slug: "{{ volume.split('.')[1] | replace('_music_volume', '') }}"
+     # Construct the full assist_satellite entity_id cleanly
+     sat: "assist_satellite.{{ device_slug }}"
+     media: "media_player.{{ device_slug }}_media_player"
+  - if:
+      - condition: template
+        value_template: "{{ is_state(sat, 'idle') }}"
+    then:
+      - variables:
+          wait: 0
+    else:
+      - variables:
+          wait: 4
+
+  - delay:
+      seconds: "{{ wait }}"
+
+  - action: media_player.volume_set
+    target:
+      entity_id: "{{ media }}"
+    data:
+      volume_level: "{{ (trigger.to_state.state | float(0) / max_volume_steps) | round(2) }}"

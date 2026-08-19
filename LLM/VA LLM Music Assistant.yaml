@@ -1,0 +1,415 @@
+blueprint:
+  name: "View Assist LLM Music Assistant"
+  description: "High-performance voice control for Music Assistant with dynamic satellite target detection via Portal Sensors, structured extraction using ai_task.generate_data, fast-path hardware controls, and strict remote speaker validation."
+  author: Lonebaggie
+  homeassistant:
+    min_version: 2024.6.0
+  domain: automation
+  input:
+    # ==================================================================
+    # SECTION 1: Target Entities & AI Engine
+    # ==================================================================
+    target_entities_section:
+      name: Target Entities & AI Engine
+      description: Configure media players, portal sensors, and the local AI Task entity.
+      icon: mdi:speaker-multiple
+      collapsed: true
+      input:
+        default_speaker:
+          name: Fallback Default Media Player
+          description: The media player to target if the command did not originate from a matched satellite sensor.
+          selector:
+            entity:
+              domain: media_player
+
+        remote_speaker:
+          name: Remote / Secondary Speaker
+          description: The target media player when the user explicitly requests output to a remote speaker.
+          selector:
+            entity:
+              domain: media_player
+
+        portal_sensors:
+          name: View Assist Portal Sensors
+          description: Select all View Assist portal sensors (e.g., sensor.portal_black, sensor.portal_white). The blueprint will match 'Voice device ID' against the trigger device.
+          selector:
+            entity:
+              integration: view_assist  
+              domain: sensor
+              multiple: true
+
+        ai_task_entity:
+          name: AI Task Entity
+          description: The AI Task entity (ai_task domain) used to extract structured metadata.
+          selector:
+            entity:
+              domain: ai_task
+
+    # ==================================================================
+    # SECTION 2: Voice Command Triggers (Collapsed UI Group)
+    # ==================================================================
+    voice_triggers_section:
+      name: Voice Command Triggers
+      description: Custom sentence patterns for media control, navigation, and modifier phrases.
+      icon: mdi:account-voice
+      collapsed: true
+      input:
+        remote_speaker_trigger_phrase:
+          name: Remote Speaker Voice Modifier
+          description: Spoken phrase that forces audio output to the remote speaker instead of the local satellite.
+          default: "on remote speaker"
+          selector:
+            text: {}
+        play_trigger_sentences:
+          name: Play / Stream / Shuffle Sentences
+          description: Trigger pattern sent to ai_task for natural language search extraction.
+          default:
+            - "(play|stream|shuffle) {query} [on remote speaker]"
+          selector:
+            text:
+              multiple: true
+
+        stop_trigger_sentences:
+          name: Stop / Pause Sentences
+          description: Trigger pattern to halt playback directly (bypasses AI).
+          default:
+            - "(stop radio|pause radio|stop music|pause music) [on remote speaker]"
+          selector:
+            text:
+              multiple: true
+
+        next_trigger_sentences:
+          name: Next Track Sentences
+          description: Trigger pattern to skip to the next track (bypasses AI).
+          default:
+            - "next track [on remote speaker]"
+          selector:
+            text:
+              multiple: true
+
+        prev_trigger_sentences:
+          name: Previous Track Sentences
+          description: Trigger pattern to skip to the previous track (bypasses AI).
+          default:
+            - "previous track [on remote speaker]"
+          selector:
+            text:
+              multiple: true
+
+        set_volume_sentences:
+          name: Set Volume Sentences
+          description: Trigger pattern for absolute volume setting (bypasses AI).
+          default:
+            - "set [the] volume [to] {query} [on remote speaker]"
+            - "set music volume [to] {query} [on remote speaker]"
+          selector:
+            text:
+              multiple: true
+
+        volume_up_sentences:
+          name: Volume Up Sentences
+          description: Fast-path volume up sentences (structured to avoid built-in intent timeout).
+          default:
+            - "[raise|increase] [the] volume [up] [on remote speaker]"
+            - "turn [the] music up [on remote speaker]"
+            - "make it louder [on remote speaker]"
+          selector:
+            text:
+              multiple: true
+
+        volume_down_sentences:
+          name: Volume Down Sentences
+          description: Fast-path volume down sentences (structured to avoid built-in intent timeout).
+          default:
+            - "[lower|decrease] [the] volume [down] [on remote speaker]"
+            - "turn [the] music down [on remote speaker]"
+            - "make it quieter [on remote speaker]"
+          selector:
+            text:
+              multiple: true
+
+    # ==================================================================
+    # SECTION 3: Audio Adjustments
+    # ==================================================================
+    audio_settings_section:
+      name: Audio Adjustments
+      description: Adjust hardware volume behavior.
+      icon: mdi:volume-high
+      collapsed: true
+      input:
+        volume_step_percentage:
+          name: Volume Step Percentage
+          description: Percentage to raise or lower the volume on 'Volume Up' / 'Volume Down'.
+          default: 5
+          selector:
+            number:
+              min: 1
+              max: 20
+              step: 1
+              unit_of_measurement: "%"
+              mode: slider
+
+# ----------------------------------------------------------------------
+# Dynamic Triggers (Assigned Input Sentences -> Trigger IDs)
+# ----------------------------------------------------------------------
+trigger:
+
+  - trigger: conversation
+    command: !input play_trigger_sentences
+    id: play_media
+  - trigger: conversation
+    command: !input stop_trigger_sentences
+    id: stop_media
+  - trigger: conversation
+    command: !input next_trigger_sentences
+    id: next_track
+  - trigger: conversation
+    command: !input prev_trigger_sentences
+    id: previous_track
+  - trigger: conversation
+    command: !input set_volume_sentences
+    id: set_volume
+  - trigger: conversation
+    command: !input volume_up_sentences
+    id: volume_up
+  - trigger: conversation
+    command: !input volume_down_sentences
+    id: volume_down
+
+# ----------------------------------------------------------------------
+# Action Pipeline
+# ----------------------------------------------------------------------
+action:
+  # Step 1: Bind Blueprint inputs & dynamically resolve Portal Sensor Attributes
+  - alias: "Process Blueprint Inputs & Compute Speaker Target via Portal Sensors"
+    variables:
+      default_player: !input default_speaker
+      remote_player: !input remote_speaker
+      ai_engine: !input ai_task_entity
+      remote_modifier: !input remote_speaker_trigger_phrase
+      step_pct: !input volume_step_percentage
+      sensor_list: !input portal_sensors
+
+      # Identify trigger device ID
+      trig_dev_id: "{{ trigger.device_id | default('', true) }}"
+
+      # Match sensor where 'Voice device ID' matches trigger.device_id
+      matched_sensor: >-
+        {{ sensor_list | select('is_state_attr', 'voice_device_id', trig_dev_id) | first | default('') }}
+
+      # Extract 'Musicplayer device' attribute from matched sensor
+      base_speaker: >-
+        {% if matched_sensor != '' %}
+          {{ state_attr(matched_sensor, 'musicplayer_device') | default(default_player, true) }}
+        {% else %}
+          {{ default_player }}
+        {% endif %}
+
+      device_name: "{{ device_attr(trig_dev_id, 'name') | lower | replace(' ', '_') if trig_dev_id != '' else '' }}"
+      speaker_vol: "number.{{ device_name }}_voice_volume"
+
+
+      # Identify if remote target was explicitly requested
+      raw_sentence: "{{ trigger.sentence | lower }}"
+      has_remote_speaker: "{{ remote_modifier | lower in (trigger.sentence | lower) }}"
+
+      # Validate remote speaker hardware status
+      remote_is_available: >-
+        {{ remote_player != '' and states(remote_player) not in ['unknown', 'unavailable'] }}
+
+      # Determine target entity dynamically
+      target_player: "{{ remote_player if has_remote_speaker else base_speaker }}"
+
+      # Hardware shuffle flag check
+      is_shuffle: "{{ 'shuffle' in (trigger.sentence | lower) }}"
+
+      # Strip remote modifier and convert 'shuffle' -> 'play' for AI processing
+      normalized_sentence: >-
+        {% set no_remote = (trigger.sentence | lower) | replace(remote_modifier | lower, '') %}
+        {% if 'shuffle' in no_remote %}
+          {{ no_remote | replace('shuffle', 'play') | trim }}
+        {% else %}
+          {{ no_remote | trim }}
+        {% endif %}
+
+  # Step 2: Strict Remote Speaker Check (Exit if requested but unavailable)
+  - if:
+      - condition: template
+        value_template: "{{ has_remote_speaker and not remote_is_available }}"
+    then:
+      - set_conversation_response: "Remote speaker not found."
+      - alias: "Halt Automation Execution"
+        stop: "Remote speaker requested but entity is unavailable or missing."
+
+  # Step 3: Fast-Path Hardware Branching via Trigger IDs
+  - choose:
+      # Branch 1: Stop / Pause
+      - conditions:
+          - condition: trigger
+            id: stop_media
+        sequence:
+          - alias: "Stop Media Player"
+            action: media_player.media_stop
+            target:
+              entity_id: "{{ target_player }}"
+
+      # Branch 2: Next Track
+      - conditions:
+          - condition: trigger
+            id: next_track
+        sequence:
+          - alias: "Skip to Next Track"
+            action: media_player.media_next_track
+            target:
+              entity_id: "{{ target_player }}"
+
+      # Branch 3: Previous Track
+      - conditions:
+          - condition: trigger
+            id: previous_track
+        sequence:
+          - alias: "Skip to Previous Track"
+            action: media_player.media_previous_track
+            target:
+              entity_id: "{{ target_player }}"
+
+      # Branch 4: Absolute Volume Set (Mapped to 0-18 scale)
+      - conditions:
+          - condition: trigger
+            id: set_volume
+        sequence:
+          - alias: "Set Exact Hardware Volume Level (0-18)"
+            action: number.set_value
+            target:
+              entity_id: "{{ speaker_vol }}"
+            data:
+              value: >-
+                {% set num = trigger.slots.query | default('50') | replace('%', '') | trim | float(50) %}
+                {% set calculated_vol = ((num / 100.0) * 18) | round(0) %}
+                {{ calculated_vol | clamp(0, 18) }}
+
+      # Branch 5: Relative Volume Up (Fast Path mapped to 0-18 scale)
+      - conditions:
+          - condition: trigger
+            id: volume_up
+        sequence:
+          - alias: "Increase Volume by User Step %"
+            action: number.set_value
+            target:
+              entity_id: "{{ speaker_vol }}"
+            data:
+              value: >-
+                {% set current = states(speaker_vol) | float(9) %}
+                {% set delta = (((step_pct | float(5)) / 100.0) * 18) | round(0) %}
+                {% set delta = 1 if delta < 1 else delta %}
+                {{ (current + delta) | clamp(0, 18) }}
+
+      # Branch 6: Relative Volume Down (Fast Path mapped to 0-18 scale)
+      - conditions:
+          - condition: trigger
+            id: volume_down
+        sequence:
+          - alias: "Decrease Volume by User Step %"
+            action: number.set_value
+            target:
+              entity_id: "{{ speaker_vol }}"
+            data:
+              value: >-
+                {% set current = states(speaker_vol) | float(9) %}
+                {% set delta = (((step_pct | float(5)) / 100.0) * 18) | round(0) %}
+                {% set delta = 1 if delta < 1 else delta %}
+                {{ (current - delta) | clamp(0, 18) }}
+
+
+      # Branch 7: Complex Play Query -> Delegate to Home Assistant AI Task Engine
+
+      - conditions:
+          - condition: trigger
+            id: play_media
+        sequence:
+          - alias: "Toggle Target Media Player Shuffle Mode"
+            action: media_player.shuffle_set
+            target:
+              entity_id: "{{ target_player }}"
+            data:
+              shuffle: "{{ is_shuffle }}"
+          - if:
+              - condition: template
+                value_template: |-
+                  {% set  query= trigger.slots.query%}
+                  {{query.startswith('Radio')}}
+            then:
+              - alias: "Check if radio requested bypass AI for faster response"
+                action: music_assistant.play_media
+                continue_on_error: true
+                target:
+                  entity_id: "{{ target_player }}"
+                data:
+                  media_id:  >
+                    {% set  radio= trigger.slots.query%}
+                    {{radio}} 
+                  enqueue: "play"
+                  media_type: "radio"
+            else:
+              - alias: "Parse Normalized Command via Home Assistant AI Task"
+                action: ai_task.generate_data
+                data:
+                  entity_id: "{{ ai_engine }}"
+                  task_name: "music_assistant_parser"
+                  instructions: >-
+                    You are a natural language parser for Home Assistant's Music Assistant.
+                    Extract search parameters from the user's spoken sentence: "{{ normalized_sentence }}"
+    
+                    RULES FOR EXTRACTION:
+                    1. "media_id": The main search target (song name, album title, artist name, radio station, or playlist).
+                    2. "artist": Extract any artist mentioned in the request (e.g., "by Pink Floyd", "Queen").
+                    3. "album": Extract any album mentioned in the request.
+                    4. "media_type": Classify the media type. Must be one of: artist, album, track, playlist, radio, podcast.
+                       - Use "radio" if a radio station, stream, or channel is mentioned.
+                       - Use "album" if an album title is mentioned.
+                       - Use "artist" if playing an artist's catalog.
+                       - Use "track" if a specific song is requested.
+                       - Use "playlist" if a playlist is requested.
+                  structure:
+                    media_id:
+                      description: "Primary search item"
+                      required: true
+                      selector:
+                        text: {}
+                    media_type:
+                      description: "Media type classification"
+                      required: false
+                      selector:
+                        select:
+                          options:
+                            - artist
+                            - album
+                            - track
+                            - playlist
+                            - radio
+                            - podcast
+                    artist:
+                      description: "Artist restriction"
+                      required: false
+                      selector:
+                        text: {}
+                    album:
+                      description: "Album restriction"
+                      required: false
+                      selector:
+                        text: {}
+                response_variable: parsed_intent
+    
+              - alias: "Play Media via Music Assistant"
+                action: music_assistant.play_media
+                continue_on_error: true
+                target:
+                  entity_id: "{{ target_player }}"
+                data:
+                  media_id: "{{ parsed_intent.data.media_id }}"
+                  enqueue: "play"
+                  media_type: "{{ parsed_intent.data.media_type | default(omit) }}"
+                  artist: "{{ parsed_intent.data.artist | default(omit) }}"
+                  album: "{{ parsed_intent.data.album | default(omit) }}"
+
+mode: single

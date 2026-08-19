@@ -1,0 +1,74 @@
+blueprint:
+  name: "View Assist Display alarms "
+  author: "Lone baggie"
+  homeassistant:
+    min_version: 2024.6.0
+  description: >
+    ### 🕰 Displays current alarms on screen. Needs voice alarms integration. .
+  domain: automation 
+  input:
+    path:
+      name: Dashboard display
+      description: Enter dashboard to display on device. 
+      default: /view-assist/voice-alarms
+      selector:
+        text:
+    portal_sensors:
+      name: View Assist Portal Sensors
+      description: Select all View Assist portal sensors (e.g., sensor.portal_black, sensor.portal_white). The blueprint will match 'Voice device ID' against the trigger device.
+      selector:
+        entity:
+          integration: view_assist  
+          domain: sensor
+          multiple: true
+    voice_command_options:
+      name: Alarm Phrases
+      icon: mdi:account-voice
+      collapsed: false
+      description: >
+        Custom voice sentences that will trigger the alarms screen.
+
+        <br>
+
+        <details>
+          <summary><b>ℹ️ Click to view the Voice Command Syntax Guide</b></summary>
+          <br>
+          When editing the phrases below, use these rules to tweak your phrases:
+          
+          * <b>[Square Brackets]</b> = Optional words. Matches with or without them.
+            * *Example:* `[what is] the weather` matches both "the weather" and "what is the weather".
+            
+          * <b>(Pipes | inside | parentheses)</b> = Alternative words (OR). Matches any single phrase.
+            * *Example:* `(tell me|give me)` matches "tell me..." or "give me...".
+        </details>
+      input:
+        alarm_sentence:
+          name: Alarm Command 
+          description: The phrase used to display the alarms.
+          default: "show [the] alarms"
+          selector:
+            text:
+              multiple: true
+
+mode: single
+
+trigger:
+  - trigger: conversation
+    command: !input alarm_sentence
+
+condition: []
+
+action:
+  - variables:
+      sensor_list: !input portal_sensors
+      path: !input path
+    # Identify trigger device ID
+      trig_dev_id: "{{ trigger.device_id | default('', true) }}"
+      # Match sensor where 'Voice device ID' matches trigger.device_id
+      matched_sensor: >-
+        {{ sensor_list | select('is_state_attr', 'voice_device_id', trig_dev_id) | first | default('') }}
+  - action: view_assist.navigate
+    data:
+      device: '{{matched_sensor}}'
+      path: '{{path}}'
+

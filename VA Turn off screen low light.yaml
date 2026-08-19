@@ -1,0 +1,74 @@
+blueprint:
+  name: "View Assist Turn off screen in low light"
+  author: "Lone baggie"
+  homeassistant:
+    min_version: 2024.6.0
+  description: >-
+    Turns off the screen  in low light levels
+  domain: automation
+  input:
+    light_sensors:
+      name: View Assist Light Sensors
+      description: Select the illuminance sensors from your View Assist satellite devices.
+      selector:
+        entity:
+          domain: sensor
+          device_class: illuminance
+          integration: vaca
+          multiple: true
+    use_screen_entity:
+      name: Control Screen with Screen switch or Screen Saver switch
+      description: >-
+        Toggle ON to use Screen switch
+        Leave OFF to use Screen saver switch (screen saver emulates screen off by display black screen )
+        Only use Screen saver if screen switch not avlaliable  for your device 
+      default: false
+      selector:
+        boolean: {}
+    threshold_lux:
+      name: Illuminance Threshold (Lux)
+      description: Light level threshold for dark vs light state.
+      default: 5
+      selector:
+        number:
+          min: 0
+          max: 1000
+          unit_of_measurement: lx
+          mode: box
+
+mode: parallel
+max: 10
+
+trigger:
+  - trigger: numeric_state
+    entity_id: !input light_sensors
+    below: !input threshold_lux
+    id: dark
+  - trigger: numeric_state
+    entity_id: !input light_sensors
+    above: !input threshold_lux
+    id: light
+
+action:
+  - variables:
+      is_screen: !input use_screen_entity
+      is_dark: "{{ trigger.id == 'dark' }}"
+      target_suffix: "{{ 'screen' if is_screen else 'screen_saver' }}"
+      
+      # Derived target entity string
+      target_entity: >-
+        {{ trigger.entity_id.replace("sensor", "switch").replace("light_level", target_suffix) }}
+      
+      # Determine action: 
+      # Screen Saver mode: dark -> ON, light -> OFF
+      # Screen mode (inverted): dark -> OFF, light -> ON
+      target_action: >-
+        {% if is_screen %}
+          {{ 'turn_off' if is_dark else 'turn_on' }}
+        {% else %}
+          {{ 'turn_on' if is_dark else 'turn_off' }}
+        {% endif %}
+
+  - action: "switch.{{ target_action }}"
+    target:
+      entity_id: "{{ target_entity }}"

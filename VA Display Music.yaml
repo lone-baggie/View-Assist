@@ -1,0 +1,112 @@
+blueprint:
+  name: "View Assist - Music Display Sync"
+  description: "Monitors Vaca media players and automatically routes navigation commands to the matching View Assist display using attribute grepping when music starts or stops."
+  author: Lonebaggie
+  homeassistant:
+    min_version: 2024.6.0
+  domain: automation
+  input:
+    target_devices:
+      name: Target View Assist Displays
+      description: Select one or more View Assist display sensors (e.g., sensor.portal, sensor.portal_black).
+      selector:
+        entity:
+          integration: view_assist
+          domain: sensor
+          multiple: true
+    media_player_entities:
+      name: Media Players
+      description: Select the media players to monitor for active playback.
+      selector:
+        entity:
+          integration: music_assistant
+          domain: media_player
+          multiple: true
+    music_path:
+      name: Music View Path
+      description: The View Assist path for the active music screen.
+      default: "/view-assist/music"
+      selector:
+        text: {}
+    stop_path:
+      name: Stop View Path
+      description: The View Assist path to navigate to when music stops playing (e.g., home view).
+      default: "/view-assist/home"
+      selector:
+        text: {}
+
+mode: queued
+max: 10
+
+trigger:
+  - trigger: media_player.started_playing
+    target:
+      entity_id: !input media_player_entities
+    options:
+      behavior: each
+      for: "00:00:00"
+    id: playing
+
+  - trigger: state
+    entity_id: !input media_player_entities
+    from: "playing"
+    to:
+      - "idle"
+      - "paused"
+      - "off"
+    id: stopped
+
+conditions: []
+
+action:
+  - variables:
+      # Capture blueprint inputs
+      selected_targets: !input target_devices
+      music_path_val: !input music_path
+      stop_path_val: !input stop_path
+      triggered_player: "{{ trigger.entity_id }}"
+
+      # Extract device hash from media player entity (e.g., media_player.vaca_5ba4347b1_media_player_2 -> 5ba4347b1)
+      device_hash: >-
+        {% if '_' in triggered_player %}
+          {{ triggered_player.split('.')[1].split('_')[1] }}
+        {% else %}
+          {{ '' }}
+        {% endif %}
+
+      # Inspect selected target sensors and match against exact attribute key or raw attribute string
+      matching_display: >-
+        {% set ns = namespace(found="") %}
+        {% for target in selected_targets %}
+          {% set exact_attr = state_attr(target, 'musicplayer_device') %}
+          {% set attr_str = states[target].attributes | string if states[target] is defined else '' %}
+          {% set entity_str = target | string %}
+          
+          {# Check 1: Direct match on musicplayer_device attribute #}
+          {% if exact_attr == triggered_player %}
+            {% set ns.found = target %}
+          {# Check 2: Fallback to searching the device hash inside the attribute blob #}
+          {% elif device_hash != '' and (device_hash in attr_str or device_hash in entity_str) %}
+            {% set ns.found = target %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.found }}
+
+      # Determine target view path based on trigger ID
+      target_path: >-
+        {% if trigger.id == 'playing' %}
+          {{ music_path_val }}
+        {% else %}
+          {{ stop_path_val }}
+        {% endif %}
+
+  # Dispatch navigation command only if a display was successfully matched
+  - if:
+      - condition: template
+        value_template: "{{ matching_display != '' }}"
+    then:
+      - action: view_assist.navigate
+        data:
+          device: "{{ matching_display }}"
+          path: "{{ target_path }}"
+          revert_timeout: 99999999

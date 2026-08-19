@@ -1,0 +1,152 @@
+blueprint:
+  name: "View Assist - Gesture Control"
+  description: "Listens for gesture events and dynamically routes navigation commands to the matching View Assist display."
+  domain: automation
+  input:
+    target_devices:
+      name: Target View Assist Displays
+      description: Select one or more View Assist display sensors (e.g., sensor.portal, sensor.portal_black).
+      selector:
+        entity:
+          integration: view_assist
+          domain: sensor
+          multiple: true
+    gesture_event_entities:
+      name: Gesture Event Sensors
+      description: Select the corresponding gesture event entities to monitor.
+      selector:
+        entity:
+          integration: vaca
+          domain: event
+          multiple: true
+    right1:
+      name: Right Swipe 1 finger
+      description: Path to open when swiping right one finger.
+      default: "/view-assist/radio"
+      selector:
+        text: {}
+    right2:
+      name: Right Swipe 2 fingers
+      description: Path to open when swiping right two fingers.
+      default: "/view-assist/portal"
+      selector:
+        text: {}
+    left1:
+      name: Left Swipe 1 finger
+      description: Path to open when swiping left one finger.
+      default: "/view-assist/screen-saver"
+      selector:
+        text: {}
+    left2:
+      name: Left Swipe 2 fingers
+      description: Path to open when swiping left two fingers.
+      default: "/view-assist/music"
+      selector:
+        text: {}
+
+
+mode: queued
+max: 10
+
+trigger:
+  # Trigger 1: Right swipe variants
+  - trigger: event.received
+    target:
+      entity_id: !input gesture_event_entities
+    options:
+      event_type:
+        - right_1
+    id: "right1"
+  - trigger: event.received
+    target:
+      entity_id: !input gesture_event_entities
+    options:
+      event_type:
+        - right_2
+    id: "right2"
+
+  # Trigger 2: Left swipe variants
+  - trigger: event.received
+    target:
+      entity_id: !input gesture_event_entities
+    options:
+      event_type:
+        - left_1
+    id: "left1"
+  - trigger: event.received
+    target:
+      entity_id: !input gesture_event_entities
+    options:
+      event_type:
+        - left_2
+    id: "left2"
+
+conditions: []
+
+action:
+  - variables:
+      # Store user inputs
+      selected_targets: !input target_devices
+      right1: !input right1
+      right2: !input right2
+      left1: !input left1
+      left2: !input left2
+
+      # Extract the core hardware string from the trigger entity (e.g., 'event.vaca_cc1617ae5_gesture' -> 'vaca_cc1617ae5')
+      trigger_object_id: "{{ trigger.entity_id.split('.')[1] }}"
+      device_core_id: "{{ trigger_object_id.replace('event.', '').replace('_gesture', '') }}"
+
+      # Match the target display sensor whose attributes contain that device core ID
+      va_sensor: >-
+        {% set ns = namespace(found="") %}
+        {% for target in selected_targets %}
+          {% set attrs = states[target].attributes | string %}
+          {% if device_core_id in attrs %}
+            {% set ns.found = target %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.found }}
+
+  # Guard rail: Stop if no matching display sensor was found
+  - condition: template
+    value_template: "{{ va_sensor != '' }}"
+
+  - choose:
+      # Route Right Swipes
+      - conditions:
+          - condition: trigger
+            id: 'right1'
+        sequence:
+          - action: view_assist.navigate
+            data:
+              device: "{{ va_sensor }}"
+              path: "{{ right1 }}"
+              revert_timeout: 999
+      - conditions:
+          - condition: trigger
+            id: 'right2'
+        sequence:
+          - action: view_assist.navigate
+            data:
+              device: "{{ va_sensor }}"
+              path: "{{ right2 }}"
+              revert_timeout: 999
+      # Route Left Swipes
+      - conditions:
+          - condition: trigger
+            id: 'left1'
+        sequence:
+          - action: view_assist.navigate
+            data:
+              device: "{{ va_sensor }}"
+              path: "{{ left1 }}"
+              revert_timeout: 999
+      - conditions:
+          - condition: trigger
+            id: 'left2'
+        sequence:
+          - action: view_assist.navigate
+            data:
+              device: "{{ va_sensor }}"
+              path: "{{ left2 }}"
+              revert_timeout: 999
