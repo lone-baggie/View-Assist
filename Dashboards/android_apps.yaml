@@ -1,0 +1,91 @@
+type: vertical-stack
+title: ⎚ Portal Applications
+cards:
+  - type: horizontal-stack
+    cards:
+      - type: custom:button-card
+        name: Android Settings
+        icon: mdi:cog
+        show_name: true
+        show_icon: true
+        styles:
+          card:
+            - background-color: '#0288D1'
+            - color: '#ffffff'
+            - border-radius: 12px
+            - padding: 16px
+        tap_action:
+          action: url
+          url_path: app://com.android.settings
+      - type: custom:button-card
+        name: WhatsApp
+        icon: mdi:whatsapp
+        show_name: true
+        show_icon: true
+        styles:
+          card:
+            - background-color: '#25D366'
+            - color: '#ffffff'
+            - border-radius: 12px
+            - padding: 16px
+            - font-weight: bold
+          icon:
+            - color: '#ffffff'
+        tap_action:
+          action: url
+          url_path: app://com.whatsapp
+      - type: custom:button-card
+        name: Chrome Browser
+        icon: mdi:google-chrome
+        show_name: true
+        show_icon: true
+        styles:
+          card:
+            - background-color: '#800080'
+            - color: '#ffffff'
+            - border-radius: 12px
+            - padding: 16px
+            - font-weight: bold
+          icon:
+            - color: '#ffffff'
+        tap_action:
+          action: url
+          url_path: app://org.chromium.chrome
+  - type: horizontal-stack
+    cards:
+      - type: custom:button-card
+        name: SmartTube Search
+        icon: mdi:youtube
+        show_name: true
+        show_icon: true
+        styles:
+          card:
+            - background-color: '#CC0000'
+            - color: '#ffffff'
+            - border-radius: 12px
+            - padding: 16px
+            - font-weight: bold
+          icon:
+            - color: '#ffffff'
+        tap_action:
+          action: url
+          url_path: app://org.smarttube.stable
+      - type: custom:button-card
+        name: File Manager
+        icon: mdi:file-cabinet
+        show_name: true
+        show_icon: true
+        styles:
+          card:
+            - background-color: '#FFD700'
+            - color: '#ffffff'
+            - border-radius: 12px
+            - padding: 16px
+            - font-weight: bold
+          icon:
+            - color: '#ffffff'
+        tap_action:
+          action: url
+          url_path: app://com.speedsoftware.rootexplorer
+      - type: custom:button-card
+        color_type: blank-card

@@ -1,0 +1,32 @@
+  - trigger:
+      - platform: state
+        entity_id: todo.google_keep_shopping
+      - platform: event
+        event_type: event_template_reloaded
+      - platform: homeassistant
+        event: start
+    action:
+      - action: todo.get_items
+        target:
+          entity_id: todo.google_keep_shopping
+        data:
+          status: needs_action
+        response_variable: shopping_list_data
+    sensor:
+      - name: "Shopping List Scene"
+        unique_id: shopping_list_scene
+        icon: mdi:shopping
+        state: >
+          {% set items = shopping_list_data['todo.google_keep_shopping']['items'] %}
+          {{ items | length }}
+        attributes:
+          text_content: >
+            {% set items = shopping_list_data['todo.google_keep_shopping']['items'] %}
+            {% set count = items | length %}
+            {% if count == 0 %}
+              Your list is empty!
+            {% else %}
+              {%- for item in items -%}
+                {{ item.summary }}{{ ', ' if not loop.last }}
+              {%- endfor -%}
+            {% endif %}

@@ -1,0 +1,377 @@
+type: vertical-stack
+cards:
+  - type: custom:button-card
+    color_type: blank-card
+    styles:
+      card:
+        - height: 60px
+  - square: false
+    type: grid
+    columns: 3
+    cards:
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
+        tap_action:
+          action: perform-action
+          perform_action: music_assistant.play_media
+          target:
+            entity_id: '[[[ return variables.var_mediaplayer_device; ]]]'
+          data:
+            media_id: BBC Radio 1
+            media_type: radio
+            enqueue: play
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
+        styles:
+          card:
+            - padding: 12px 8px
+            - background-color: |
+                [[[
+                  let player = states[variables.var_mediaplayer_device];
+                  if (player && player.attributes && player.attributes.media_title === 'BBC Radio 1' && player.state === 'playing') {
+                    return '#FFFF00';
+                  }
+                  return '#FFFFFF';
+                ]]]
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon"'
+            - grid-template-rows: 1fr
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+        custom_fields:
+          svg_icon: >-
+            <img src="/local/bbc_radio_1.svg" style="height: 4.5rem; max-width:
+            85%; object-fit: contain;">
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
+        tap_action:
+          action: perform-action
+          perform_action: music_assistant.play_media
+          target:
+            entity_id: '[[[ return variables.var_mediaplayer_device; ]]]'
+          data:
+            media_id: BBC Radio 2
+            media_type: radio
+            enqueue: play
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
+        styles:
+          card:
+            - padding: 12px 8px
+            - background-color: |
+                [[[
+                  let player = states[variables.var_mediaplayer_device];
+                  if (player && player.attributes && player.attributes.media_title === 'BBC Radio 2' && player.state === 'playing') {
+                    return '#FFFF00';
+                  }
+                  return '#FFFFFF';
+                ]]]
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon"'
+            - grid-template-rows: 1fr
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+        custom_fields:
+          svg_icon: >-
+            <img src="/local/bbc_radio_2.svg" style="height: 4.5rem; max-width:
+            85%; object-fit: contain;">
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
+        tap_action:
+          action: perform-action
+          perform_action: music_assistant.play_media
+          target:
+            entity_id: '[[[ return variables.var_mediaplayer_device; ]]]'
+          data:
+            media_id: BBC Radio 3
+            media_type: radio
+            enqueue: play
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
+        styles:
+          card:
+            - padding: 12px 8px
+            - background-color: |
+                [[[
+                  let player = states[variables.var_mediaplayer_device];
+                  if (player && player.attributes && player.attributes.media_title === 'BBC Radio 3' && player.state === 'playing') {
+                    return '#FFFF00';
+                  }
+                  return '#FFFFFF';
+                ]]]
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon"'
+            - grid-template-rows: 1fr
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+        custom_fields:
+          svg_icon: >-
+            <img src="/local/bbc_radio_3.svg" style="height: 4.5rem; max-width:
+            85%; object-fit: contain;">
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
+        tap_action:
+          action: perform-action
+          perform_action: music_assistant.play_media
+          target:
+            entity_id: '[[[ return variables.var_mediaplayer_device; ]]]'
+          data:
+            media_id: BBC Radio 4
+            media_type: radio
+            enqueue: play
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
+        styles:
+          card:
+            - padding: 12px 8px
+            - background-color: |
+                [[[
+                  let player = states[variables.var_mediaplayer_device];
+                  if (player && player.attributes && player.attributes.media_title === 'BBC Radio 4' && player.state === 'playing') {
+                    return '#FFFF00';
+                  }
+                  return '#FFFFFF';
+                ]]]
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon"'
+            - grid-template-rows: 1fr
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+        custom_fields:
+          svg_icon: >-
+            <img src="/local/bbc_radio_4.svg" style="height: 4.5rem; max-width:
+            85%; object-fit: contain;">
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
+        tap_action:
+          action: perform-action
+          perform_action: music_assistant.play_media
+          target:
+            entity_id: '[[[ return variables.var_mediaplayer_device; ]]]'
+          data:
+            media_id: BBC Radio 5 Live
+            media_type: radio
+            enqueue: play
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
+        styles:
+          card:
+            - padding: 12px 8px
+            - background-color: |
+                [[[
+                  let player = states[variables.var_mediaplayer_device];
+                  if (player && player.attributes && player.attributes.media_title === 'BBC Radio 5 Live' && player.state === 'playing') {
+                    return '#FFFF00';
+                  }
+                  return '#FFFFFF';
+                ]]]
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon"'
+            - grid-template-rows: 1fr
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+        custom_fields:
+          svg_icon: >-
+            <img src="/local/bbc_radio_5.svg" style="height: 4.5rem; max-width:
+            85%; object-fit: contain;">
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
+        tap_action:
+          action: perform-action
+          perform_action: music_assistant.play_media
+          target:
+            entity_id: '[[[ return variables.var_mediaplayer_device; ]]]'
+          data:
+            media_id: BBC Radio 6
+            media_type: radio
+            enqueue: play
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
+        styles:
+          card:
+            - padding: 12px 8px
+            - background-color: |
+                [[[
+                  let player = states[variables.var_mediaplayer_device];
+                  if (player && player.attributes && player.attributes.media_title === 'BBC Radio 6' && player.state === 'playing') {
+                    return '#FFFF00';
+                  }
+                  return '#FFFFFF';
+                ]]]
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon"'
+            - grid-template-rows: 1fr
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+        custom_fields:
+          svg_icon: >-
+            <img src="/local/bbc_radio_6.svg" style="height: 4.5rem; max-width:
+            85%; object-fit: contain;">
