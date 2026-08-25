@@ -4,7 +4,7 @@ Welcome to View Assist assets for the Facebook Portal
 
 The following custom Home Assistant blueprints and dashboards have been created for View Assist.
 
-These blueprints and dashboards , have been created for the Faceboom Portal Gen 2, 8 and 10” versions.
+These blueprints and dashboards , have been created for the Facebook Portal Gen 2, 8 and 10” versions.
 
 ##### **Prerequisites**
 
