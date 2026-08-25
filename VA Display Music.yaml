@@ -44,7 +44,7 @@ trigger:
       entity_id: !input media_player_entities
     options:
       behavior: each
-      for: "00:00:00"
+      for: "00:00:03"
     id: playing
 
   - trigger: state
