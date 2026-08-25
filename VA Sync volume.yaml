@@ -1,7 +1,8 @@
 blueprint:
   name: View Assist Volume Sync
   description: >-
-    Syncs the volume of the pysical volume of the device to the media player. If using Music assistant
+    Syncs the volume of the pysical volume of the device to the media player. If using Music assistant. 
+    
   author: Lonebaggie
   homeassistant:
     min_version: 2024.6.0
@@ -15,6 +16,14 @@ blueprint:
           integration: vaca
           domain: number
           multiple: true
+    portal_sensors:
+      name: View Assist Portal Sensors
+      description: Select all View Assist portal sensors (e.g., sensor.portal_black, sensor.portal_white). The blueprint will match 'Voice device ID' against the trigger device.
+      selector:
+        entity:
+          integration: view_assist  
+          domain: sensor
+          multiple: true
 mode: single
 
 # Declare blueprint inputs as Jinja-accessible variables
@@ -26,14 +35,13 @@ triggers:
 
 actions:
   - variables:
-     max_volume_steps: 18
      volume: "{{trigger.entity_id}}"
-     # Extract the unique object_id part (e.g. "vaca_cc1617ae5_music_volume" from "number.vaca_cc1617ae5_music_volume")
-     # and strip the suffix "_music_volume" to get the core device slug.
-     device_slug: "{{ volume.split('.')[1] | replace('_music_volume', '') }}"
-     # Construct the full assist_satellite entity_id cleanly
-     sat: "assist_satellite.{{ device_slug }}"
-     media: "media_player.{{ device_slug }}_media_player"
+     sensor_list: !input portal_sensors
+     dev_id: "{{ device_id(volume)}}"
+     matched_sensor: >-
+       {{ sensor_list | select('is_state_attr', 'voice_device_id', dev_id) | first | default('') }}
+     sat: "{{ state_attr(matched_sensor,'mic_device') }}"
+     media: "{{ state_attr(matched_sensor,'musicplayer_device') }}"
   - if:
       - condition: template
         value_template: "{{ is_state(sat, 'idle') }}"
@@ -51,4 +59,4 @@ actions:
     target:
       entity_id: "{{ media }}"
     data:
-      volume_level: "{{ (trigger.to_state.state | float(0) / max_volume_steps) | round(2) }}"
+      volume_level: "{{ (trigger.to_state.state | float(0) / 18) | round(2) }}"

@@ -152,7 +152,7 @@ blueprint:
 # ----------------------------------------------------------------------
 # Dynamic Triggers (Assigned Input Sentences -> Trigger IDs)
 # ----------------------------------------------------------------------
-trigger:
+triggers:
 
   - trigger: conversation
     command: !input play_trigger_sentences
@@ -207,6 +207,10 @@ action:
 
       device_name: "{{ device_attr(trig_dev_id, 'name') | lower | replace(' ', '_') if trig_dev_id != '' else '' }}"
       speaker_vol: "number.{{ device_name }}_voice_volume"
+      vol: >
+         {% set vol_calc = (states(speaker_vol)|float(0))/18|round(2) %}
+         {{ vol_calc }}
+        
 
 
       # Identify if remote target was explicitly requested
@@ -232,7 +236,13 @@ action:
           {{ no_remote | trim }}
         {% endif %}
 
-  # Step 2: Strict Remote Speaker Check (Exit if requested but unavailable)
+  # Step 2: Ensure volume is equalised.
+  - action: media_player.volume_set
+    target:
+      entity_id: "{{ base_speaker }}"
+    data:
+      volume_level: "{{ vol }}"
+  # Step 3: Strict Remote Speaker Check (Exit if requested but unavailable)
   - if:
       - condition: template
         value_template: "{{ has_remote_speaker and not remote_is_available }}"
@@ -241,7 +251,7 @@ action:
       - alias: "Halt Automation Execution"
         stop: "Remote speaker requested but entity is unavailable or missing."
 
-  # Step 3: Fast-Path Hardware Branching via Trigger IDs
+  # Step 4: Fast-Path Hardware Branching via Trigger IDs
   - choose:
       # Branch 1: Stop / Pause
       - conditions:

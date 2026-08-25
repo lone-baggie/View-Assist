@@ -24,6 +24,9 @@ cards:
             media_id: BBC Radio 1
             media_type: radio
             enqueue: play
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
         extra_styles: |
           ha-card:active {
             background-color: #FFFF00 !important;
@@ -85,6 +88,9 @@ cards:
             media_id: BBC Radio 2
             media_type: radio
             enqueue: play
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
         extra_styles: |
           ha-card:active {
             background-color: #FFFF00 !important;
@@ -146,6 +152,9 @@ cards:
             media_id: BBC Radio 3
             media_type: radio
             enqueue: play
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
         extra_styles: |
           ha-card:active {
             background-color: #FFFF00 !important;
@@ -207,6 +216,9 @@ cards:
             media_id: BBC Radio 4
             media_type: radio
             enqueue: play
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
         extra_styles: |
           ha-card:active {
             background-color: #FFFF00 !important;
@@ -268,6 +280,9 @@ cards:
             media_id: BBC Radio 5 Live
             media_type: radio
             enqueue: play
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
         extra_styles: |
           ha-card:active {
             background-color: #FFFF00 !important;
@@ -329,6 +344,9 @@ cards:
             media_id: BBC Radio 6
             media_type: radio
             enqueue: play
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
         extra_styles: |
           ha-card:active {
             background-color: #FFFF00 !important;

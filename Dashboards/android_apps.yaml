@@ -1,91 +1,359 @@
 type: vertical-stack
-title: ⎚ Portal Applications
 cards:
-  - type: horizontal-stack
+  - type: custom:button-card
+    color_type: blank-card
+    styles:
+      card:
+        - height: 60px
+  - square: false
+    type: grid
+    columns: 3
     cards:
       - type: custom:button-card
-        name: Android Settings
-        icon: mdi:cog
-        show_name: true
-        show_icon: true
-        styles:
-          card:
-            - background-color: '#0288D1'
-            - color: '#ffffff'
-            - border-radius: 12px
-            - padding: 16px
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
         tap_action:
           action: url
           url_path: app://com.android.settings
-      - type: custom:button-card
-        name: WhatsApp
-        icon: mdi:whatsapp
-        show_name: true
-        show_icon: true
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
         styles:
           card:
-            - background-color: '#25D366'
-            - color: '#ffffff'
-            - border-radius: 12px
-            - padding: 16px
-            - font-weight: bold
-          icon:
-            - color: '#ffffff'
+            - padding: 12px 8px
+            - background-color: '#0288D1'
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon" "app_name"'
+            - grid-template-rows: 1fr auto
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+            app_name:
+              - font-size: 1.8rem
+              - font-weight: bold
+              - color: '#FFFFFF'
+              - text-align: center
+              - padding-bottom: 6px
+        custom_fields:
+          svg_icon: >-
+            <ha-icon icon="mdi:cog" style="width: 5.5rem; height: 5.5rem;
+            --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+          app_name: Settings
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
         tap_action:
           action: url
           url_path: app://com.whatsapp
-      - type: custom:button-card
-        name: Chrome Browser
-        icon: mdi:google-chrome
-        show_name: true
-        show_icon: true
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
         styles:
           card:
-            - background-color: '#800080'
-            - color: '#ffffff'
-            - border-radius: 12px
-            - padding: 16px
-            - font-weight: bold
-          icon:
-            - color: '#ffffff'
+            - padding: 12px 8px
+            - background-color: '#25D366'
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon" "app_name"'
+            - grid-template-rows: 1fr auto
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+            app_name:
+              - font-size: 1.8rem
+              - font-weight: bold
+              - color: '#FFFFFF'
+              - text-align: center
+              - padding-bottom: 6px
+        custom_fields:
+          svg_icon: >-
+            <ha-icon icon="mdi:whatsapp" style="width: 5.5rem; height: 5.5rem;
+            --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+          app_name: WhatsApp
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
         tap_action:
           action: url
           url_path: app://org.chromium.chrome
-  - type: horizontal-stack
-    cards:
-      - type: custom:button-card
-        name: SmartTube Search
-        icon: mdi:youtube
-        show_name: true
-        show_icon: true
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
         styles:
           card:
-            - background-color: '#CC0000'
-            - color: '#ffffff'
-            - border-radius: 12px
-            - padding: 16px
-            - font-weight: bold
-          icon:
-            - color: '#ffffff'
+            - padding: 12px 8px
+            - background-color: '#800080'
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon" "app_name"'
+            - grid-template-rows: 1fr auto
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+            app_name:
+              - font-size: 1.8rem
+              - font-weight: bold
+              - color: '#FFFFFF'
+              - text-align: center
+              - padding-bottom: 6px
+        custom_fields:
+          svg_icon: >-
+            <ha-icon icon="mdi:google-chrome" style="width: 5.5rem; height:
+            5.5rem; --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+          app_name: Chrome
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
         tap_action:
           action: url
           url_path: app://org.smarttube.stable
-      - type: custom:button-card
-        name: File Manager
-        icon: mdi:file-cabinet
-        show_name: true
-        show_icon: true
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
         styles:
           card:
-            - background-color: '#FFD700'
-            - color: '#ffffff'
-            - border-radius: 12px
-            - padding: 16px
-            - font-weight: bold
-          icon:
-            - color: '#ffffff'
+            - padding: 12px 8px
+            - background-color: '#CC0000'
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon" "app_name"'
+            - grid-template-rows: 1fr auto
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+            app_name:
+              - font-size: 1.8rem
+              - font-weight: bold
+              - color: '#FFFFFF'
+              - text-align: center
+              - padding-bottom: 6px
+        custom_fields:
+          svg_icon: >-
+            <ha-icon icon="mdi:youtube" style="width: 5.5rem; height: 5.5rem;
+            --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+          app_name: SmartTube
+      - type: custom:button-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
         tap_action:
           action: url
           url_path: app://com.speedsoftware.rootexplorer
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
+        styles:
+          card:
+            - padding: 12px 8px
+            - background-color: '#FFD700'
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon" "app_name"'
+            - grid-template-rows: 1fr auto
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+            app_name:
+              - font-size: 1.8rem
+              - font-weight: bold
+              - color: '#FFFFFF'
+              - text-align: center
+              - padding-bottom: 6px
+        custom_fields:
+          svg_icon: >-
+            <ha-icon icon="mdi:file-cabinet" style="width: 5.5rem; height:
+            5.5rem; --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+          app_name: File Explorer
       - type: custom:button-card
-        color_type: blank-card
+        template: variable_template
+        show_name: false
+        show_state: false
+        show_icon: false
+        aspect_ratio: 4/3
+        tap_action:
+          action: url
+          url_path: app://com.facebook.alohaapps.settings
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/screen-saver
+        extra_styles: |
+          ha-card:active {
+            background-color: #FFFF00 !important;
+            transform: scale(0.95);
+            transition: background-color 0s, transform 0.05s !important;
+          }
+        styles:
+          card:
+            - padding: 12px 8px
+            - background-color: '#653219'
+            - transition: >-
+                background-color 6s cubic-bezier(0, 1, 0.5, 1), transform 0.3s
+                ease
+            - box-shadow: none
+            - border-radius: 10px
+            - overflow: hidden
+            - border: |-
+                [[[
+                  return (entity && entity.state === 'on') 
+                    ? '3px solid var(--green-color, #4CAF50)' 
+                    : 'none';
+                ]]]
+          grid:
+            - grid-template-areas: '"svg_icon" "app_name"'
+            - grid-template-rows: 1fr auto
+            - justify-items: center
+            - align-items: center
+            - height: 100%
+          custom_fields:
+            svg_icon:
+              - display: flex
+              - justify-content: center
+              - align-items: center
+              - width: 100%
+              - height: 100%
+            app_name:
+              - font-size: 1.8rem
+              - font-weight: bold
+              - color: '#FFFFFF'
+              - text-align: center
+              - padding-bottom: 6px
+        custom_fields:
+          svg_icon: >-
+            <ha-icon icon="mdi:cog" style="width: 5.5rem; height: 5.5rem;
+            --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+          app_name: Portal Settings
