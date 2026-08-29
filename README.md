@@ -4,11 +4,20 @@ Welcome to View Assist assets for the Facebook Portal
 
 The following custom Home Assistant blueprints and dashboards have been created for View Assist.
 
-These blueprints and dashboards , have been created for the Faceboom Portal Gen 2, 8 and 10” versions.
+These blueprints and dashboards , have been created for the Facebook Portal Gen 2, 8 and 10” versions.
 
 ##### **Prerequisites**
 
-Alarms are provided via a separate integration, [Voice Alarms](https://github.com/lone-baggie/voice_alarms). Music control is provided by Music Assistant. TODO lists use the standard Home Assistant integration. These blueprints require dashboards to be created to match the query. See [Dashboards](https://github.com/lone-baggie/View-Assist/tree/main/Dashboards) for examples.
+Alarms are provided via a separate integration, [Voice Alarms](https://github.com/lone-baggie/voice_alarms). Music control is provided by Music Assistant. TODO lists use the standard Home Assistant integration. These blueprints require dashboards to be created to match the query. See [Dashboards](https://github.com/lone-baggie/View-Assist/tree/main/Dashboards) for examples. 
+
+The dashboard examples supplied must be added to the original View-Assist dashboard, as they contain variables obtained from the default dashboard. To add one of the dashboard YAML files views to the existing view-assist dashboard:
+
+* Edit existing View Assist dashboard  
+* Add a new view. Ensure the name of the view is the same as the YAML file you wish to use  
+* Ensure the view created is panel view (one card)  
+* Once created, add a new card. Select the manual card  
+* Delete file contents of the manual card.  
+* Cut and paste the YAML file contents  into the blank card and save.
 
 ---
 
@@ -50,7 +59,7 @@ Displays the music dashboard if the media player is playing.
 
 #### Description
 
-Uses one- and two-finger swipes, left and right, to display alternative dashboard displays.
+Uses one- and two-finger swipes, left and right, to display alternative dashboard views.
 
 ---
 
@@ -104,7 +113,7 @@ Turns on and off screen according to light level.
 
 #### Description
 
-Display the alarm dashboard with voice.
+The display shows the alarm view using voice trigger.
 
 ---
 

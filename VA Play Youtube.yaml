@@ -1,0 +1,83 @@
+blueprint:
+  name: VA Voice Control for Youtube
+  author: Lonebaggie
+  homeassistant:
+    min_version: 2024.6.0
+  description: >
+    ### 🗣 VA Voice Control for Youtube
+    
+    Control Smart tube via VA voice satellites. 
+    <br>
+    
+    <details>
+      <summary><b>ℹ️ Click to view Voice Command Syntax Guide</b></summary>
+      <br>
+      When adjusting phrases below, use this syntax:
+      
+      * <b>[Square Brackets]</b> = Optional text (e.g., <code>[the]</code>).
+      * <b>(Parentheses | with | pipes)</b> = OR options (e.g., <code>(play|shuffle)</code>).
+      * <b>{Curly Braces}</b> = Extraction slots. <b>Do not change the slot names!</b>
+    </details>
+  domain: automation
+
+  input:
+    play_sentence:
+      name: Resume / Play Music Phrase
+      default: "(play youtube|start youtube) [video][of] {video}"
+      selector:
+        text: {}
+    stop_sentence:
+      name: Stop Video Phrase
+      default: "stop youtube [video]"
+      selector:
+        text: {}
+
+mode: single
+
+triggers:
+  - trigger: conversation
+    command: !input stop_sentence
+    id: video_stop
+  - trigger: conversation
+    command: !input play_sentence
+    id: video_play
+
+condition: []
+
+actions:
+  # Step 1: Bind Blueprint inputs & dynamically resolve Portal Sensor Attributes
+  - alias: "Process Blueprint Inputs & Compute Speaker Target via Portal Sensors"
+    variables:
+      target_satellite_device: '{{ view_assist_entity(trigger.device_id) }}'
+      media_id: "{{trigger.slots.video}}" 
+  - choose:
+      # Branch 1: Stop / Pause
+      - conditions:
+          - condition: trigger
+            id: video_stop
+        sequence:
+          - action: view_assist.navigate
+            data:
+              device: "{{target_satellite_device}}"
+              path: /view-assist/screen-saver 
+      - conditions:
+          - condition: trigger
+            id: video_play
+        sequence:
+         - action: youtube_search.search
+           data:
+             query: "{{ media_id }}"
+           response_variable: result
+         - variables:
+             url: "https://tube.rvere.com/embed/?v={{ result.video_id }}&autoplay=1"
+         - action: view_assist.set_state
+           target:
+             entity_id: '{{ target_satellite_device }}'
+           data:
+             url: '{{ url }}'       
+         - action: view_assist.navigate
+           data:
+             device: "{{target_satellite_device}}"
+             path: /view-assist/webpage  
+             revert_timeout: 999999
+

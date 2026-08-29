@@ -13,14 +13,6 @@ blueprint:
       default: /view-assist/voice-alarms
       selector:
         text:
-    portal_sensors:
-      name: View Assist Portal Sensors
-      description: Select all View Assist portal sensors (e.g., sensor.portal_black, sensor.portal_white). The blueprint will match 'Voice device ID' against the trigger device.
-      selector:
-        entity:
-          integration: view_assist  
-          domain: sensor
-          multiple: true
     voice_command_options:
       name: Alarm Phrases
       icon: mdi:account-voice
@@ -60,15 +52,10 @@ condition: []
 
 action:
   - variables:
-      sensor_list: !input portal_sensors
+      target_satellite_device: '{{ view_assist_entity(trigger.device_id) }}'
       path: !input path
-    # Identify trigger device ID
-      trig_dev_id: "{{ trigger.device_id | default('', true) }}"
-      # Match sensor where 'Voice device ID' matches trigger.device_id
-      matched_sensor: >-
-        {{ sensor_list | select('is_state_attr', 'voice_device_id', trig_dev_id) | first | default('') }}
   - action: view_assist.navigate
     data:
-      device: '{{matched_sensor}}'
+      device: '{{target_satellite_device}}'
       path: '{{path}}'
 

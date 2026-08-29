@@ -1,11 +1,11 @@
 blueprint:
   name: "View Assist TODO list"
-  author: "Lone baggie"
+  author: "Lonebaggie"
   homeassistant:
     min_version: 2024.6.0
   description: >
     ### 🛒 Shopping List Reader for AVA
-    
+
     Reads out, adds, removes, or clears items on your shopping list from any AVA assistant. 
     This blueprint relies on the music assistant media players having the same name as the AVA device. 
     So `media_player.xxx` must match `assist_satellite.xxx`.
@@ -29,15 +29,7 @@ blueprint:
           description: The name of the list spoken by the assistant.
           default: "Shopping list"
           selector:
-            text:
-        portal_sensors:
-          name: View Assist Portal Sensors
-          description: Select all View Assist portal sensors (e.g., sensor.portal_black, sensor.portal_white). The blueprint will match 'Voice device ID' against the trigger device.
-          selector:
-            entity:
-              integration: view_assist  
-              domain: sensor
-              multiple: true
+            text: {}
         todo_path:
           name: TODO dashboard
           description: Path to open TODO dashboard
@@ -69,10 +61,9 @@ blueprint:
         readtodo_sentence:
           name: Read todo phrase
           description: The phrase used to ask for items on the list.
-          default: "(Read|tell me|what's on) [my|the] shopping list"
+          default: "(Read|tell me|what's on|show) [my|the] shopping list"
           selector:
-            text:
-              multiple: true
+            text: {}
 
     # --- Speech Output Profile ---
     speech_profile_options:
@@ -123,8 +114,7 @@ blueprint:
           description: Phrase to add an item to the list.
           default: "(Add|include) {item} (to|on) [my] (shopping|todo) list"
           selector:
-            text:
-              multiple: true
+            text: {}
 
     # --- Remove Item Voice Phrases ---
     remove_todo:
@@ -139,8 +129,7 @@ blueprint:
           description: Phrase to remove an item from the list.
           default: "(Remove|subtract) {item} from [my] (shopping|todo) list"
           selector:
-            text:
-              multiple: true
+            text: {}
 
     # --- Delete All Voice Phrases ---
     delete_todo:
@@ -155,12 +144,11 @@ blueprint:
           description: Phrase to clear all items from the list.
           default: "(delete|remove|empty) [all items from] (my|the) (shopping|todo) list"
           selector:
-            text:
-              multiple: true 
+            text: {}
 
 mode: single
 
-trigger:
+triggers:
   - trigger: conversation
     command: !input readtodo_sentence
     id: readtodo
@@ -176,28 +164,30 @@ trigger:
 
 condition: []
 
-action:
+actions:
+  # Step 1: Extract variables safely
   - variables:
       todo: !input todo_entity
       name: !input listname
-      sensor_list: !input portal_sensors
       path: !input todo_path
-      item: "{{ trigger.slots.item | default('', true) | capitalize }}"
-      entity: "{{ trigger.satellite_id }}"
+      raw_item_slot: "{{ trigger.slots.item | default('', true) }}"
+      item: "{{ raw_item_slot | capitalize }}"
+      # Fallback logic to protect against undefined custom jinja functions
       trig_dev_id: "{{ trigger.device_id | default('', true) }}"
-      matched_sensor: >-
-        {{ sensor_list | select('is_state_attr', 'voice_device_id', trig_dev_id) | first | default('') }}
+      target_satellite_device: "{{ view_assist_entity(trig_dev_id)}}"
 
-
+  # Step 2: Navigate satellite display
   - action: view_assist.navigate
     data:
-      device: '{{matched_sensor}}'
-      path: '{{ path }}'
+      device: "{{ target_satellite_device }}"
+      path: "{{ path }}"
+
+  # Step 3: Handle Voice Intent Branches
   - choose:
       # --- Intent 1: READ LIST ---
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.id == 'readtodo' }}"
+          - condition: trigger
+            id: readtodo
         sequence:
           - action: todo.get_items
             target:
@@ -237,8 +227,8 @@ action:
 
       # --- Intent 2: ADD ITEM ---
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.id == 'addtodo' }}"
+          - condition: trigger
+            id: addtodo
         sequence:
           - action: todo.add_item
             data:
@@ -249,8 +239,8 @@ action:
 
       # --- Intent 3: REMOVE SINGLE ITEM ---
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.id == 'removetodo' }}"
+          - condition: trigger
+            id: removetodo
         sequence:
           - action: todo.get_items
             target:
@@ -259,32 +249,41 @@ action:
               status: needs_action
             response_variable: current_list
           - variables:
-              existing_items: >-
-                {{ current_list[todo]['items'] | map(attribute='summary') | map('lower') | list }}
-              item_exists: >-
-                {{ item | lower in existing_items }}
+              all_items: "{{ current_list[todo]['items'] | map(attribute='summary') | list }}"
+              # Find the exact match in the array ignoring case sensitivity
+              matched_item: >-
+                {% set target = raw_item_slot | lower %}
+                {% set ns = namespace(found='') %}
+                {% for i in all_items %}
+                  {% if i | lower == target %}
+                    {% set ns.found = i %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.found }}
           - if:
               - condition: template
-                value_template: "{{ item_exists }}"
+                value_template: "{{ matched_item != '' }}"
             then:
               - action: todo.remove_item
                 data:
-                  item: "{{ item }}"
+                  item: "{{ matched_item }}"
                 target:
                   entity_id: "{{ todo }}"
-              - set_conversation_response: "{{ item }} removed from {{ name }}"
+              - set_conversation_response: "{{ matched_item }} removed from {{ name }}"
             else:
               - set_conversation_response: "{{ item }} is not on your {{ name }}"
 
       # --- Intent 4: DELETE ALL ITEMS ---
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.id == 'deletetodo' }}"
+          - condition: trigger
+            id: deletetodo
         sequence:
           - action: todo.get_items
             response_variable: all_items
             target:
               entity_id: "{{ todo }}"
+            data:
+              status: needs_action
           - repeat:
               for_each: "{{ all_items[todo]['items'] }}"
               sequence:

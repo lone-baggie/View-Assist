@@ -29,15 +29,6 @@ blueprint:
             entity:
               domain: media_player
 
-        portal_sensors:
-          name: View Assist Portal Sensors
-          description: Select all View Assist portal sensors (e.g., sensor.portal_black, sensor.portal_white). The blueprint will match 'Voice device ID' against the trigger device.
-          selector:
-            entity:
-              integration: view_assist  
-              domain: sensor
-              multiple: true
-
         ai_task_entity:
           name: AI Task Entity
           description: The AI Task entity (ai_task domain) used to extract structured metadata.
@@ -188,19 +179,17 @@ action:
       ai_engine: !input ai_task_entity
       remote_modifier: !input remote_speaker_trigger_phrase
       step_pct: !input volume_step_percentage
-      sensor_list: !input portal_sensors
+      trig_dev_id: '{{trigger.device_id}}'
+      target_satellite_device: '{{ view_assist_entity(trigger.device_id) }}'
+      target_mediaplayer_device: '{{ state_attr(target_satellite_device, ''mediaplayer_device'')}}'
+      target_satellite_device_type: '{{ state_attr(target_satellite_device, ''type'')}}'
+      target_musicplayer_device: '{{ state_attr(target_satellite_device, ''musicplayer_device'') }}'
 
-      # Identify trigger device ID
-      trig_dev_id: "{{ trigger.device_id | default('', true) }}"
-
-      # Match sensor where 'Voice device ID' matches trigger.device_id
-      matched_sensor: >-
-        {{ sensor_list | select('is_state_attr', 'voice_device_id', trig_dev_id) | first | default('') }}
 
       # Extract 'Musicplayer device' attribute from matched sensor
       base_speaker: >-
-        {% if matched_sensor != '' %}
-          {{ state_attr(matched_sensor, 'musicplayer_device') | default(default_player, true) }}
+        {% if target_mediaplayer_device != '' %}
+          {{ target_mediaplayer_device }}
         {% else %}
           {{ default_player }}
         {% endif %}
@@ -349,6 +338,9 @@ action:
                   {% set  query= trigger.slots.query%}
                   {{query.startswith('Radio')}}
             then:
+              - action: media_player.media_stop
+                target:
+                  entity_id: "{{ target_player }}"
               - alias: "Check if radio requested bypass AI for faster response"
                 action: music_assistant.play_media
                 continue_on_error: true
@@ -410,6 +402,9 @@ action:
                         text: {}
                 response_variable: parsed_intent
     
+              - action: media_player.media_stop
+                target:
+                  entity_id: "{{ target_player }}"
               - alias: "Play Media via Music Assistant"
                 action: music_assistant.play_media
                 continue_on_error: true
