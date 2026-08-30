@@ -4,7 +4,7 @@ cards:
     color_type: blank-card
     styles:
       card:
-        - height: 60px
+        - height: 100px
   - square: false
     type: grid
     columns: 3
@@ -71,8 +71,8 @@ cards:
               - height: 100%
         custom_fields:
           svg_icon: >-
-            <img src="/local/bbc_radio_1.svg" style="height: 4.5rem; max-width:
-            85%; object-fit: contain;">
+            <img src="/local/bbc_radio_1.svg" style="height: 15.5rem; max-width:
+            100%; object-fit: contain;">
       - type: custom:button-card
         template: variable_template
         show_name: false
@@ -135,8 +135,8 @@ cards:
               - height: 100%
         custom_fields:
           svg_icon: >-
-            <img src="/local/bbc_radio_2.svg" style="height: 4.5rem; max-width:
-            85%; object-fit: contain;">
+            <img src="/local/bbc_radio_2.svg" style="height: 15.5rem; max-width:
+            100%; object-fit: contain;">
       - type: custom:button-card
         template: variable_template
         show_name: false
@@ -199,8 +199,8 @@ cards:
               - height: 100%
         custom_fields:
           svg_icon: >-
-            <img src="/local/bbc_radio_3.svg" style="height: 4.5rem; max-width:
-            85%; object-fit: contain;">
+            <img src="/local/bbc_radio_3.svg" style="height: 15.5rem; max-width:
+            100%; object-fit: contain;">
       - type: custom:button-card
         template: variable_template
         show_name: false
@@ -263,8 +263,8 @@ cards:
               - height: 100%
         custom_fields:
           svg_icon: >-
-            <img src="/local/bbc_radio_4.svg" style="height: 4.5rem; max-width:
-            85%; object-fit: contain;">
+            <img src="/local/bbc_radio_4.svg" style="height: 15.5rem; max-width:
+            100%; object-fit: contain;">
       - type: custom:button-card
         template: variable_template
         show_name: false
@@ -327,8 +327,8 @@ cards:
               - height: 100%
         custom_fields:
           svg_icon: >-
-            <img src="/local/bbc_radio_5.svg" style="height: 4.5rem; max-width:
-            85%; object-fit: contain;">
+            <img src="/local/bbc_radio_5.svg" style="height: 25.5rem; max-width:
+            100%; object-fit: contain;">
       - type: custom:button-card
         template: variable_template
         show_name: false
@@ -391,5 +391,5 @@ cards:
               - height: 100%
         custom_fields:
           svg_icon: >-
-            <img src="/local/bbc_radio_6.svg" style="height: 4.5rem; max-width:
-            85%; object-fit: contain;">
+            <img src="/local/bbc_radio_6.svg" style="height: 15.5rem; max-width:
+            100%; object-fit: contain;">

@@ -64,8 +64,8 @@ cards:
               - padding-bottom: 6px
         custom_fields:
           svg_icon: >-
-            <ha-icon icon="mdi:cog" style="width: 5.5rem; height: 5.5rem;
-            --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+            <ha-icon icon="mdi:cog" style="max-width: 100%; max-height: 100%;
+            --mdc-icon-size: 18.5rem; color: #FFFFFF;"></ha-icon>
           app_name: Settings
       - type: custom:button-card
         template: variable_template
@@ -122,8 +122,8 @@ cards:
               - padding-bottom: 6px
         custom_fields:
           svg_icon: >-
-            <ha-icon icon="mdi:whatsapp" style="width: 5.5rem; height: 5.5rem;
-            --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+            <ha-icon icon=mdi:whatsapp style="max-width: 100%; max-height: 100%;
+            --mdc-icon-size: 18.5rem; color: #FFFFFF;"></ha-icon>
           app_name: WhatsApp
       - type: custom:button-card
         template: variable_template
@@ -180,8 +180,8 @@ cards:
               - padding-bottom: 6px
         custom_fields:
           svg_icon: >-
-            <ha-icon icon="mdi:google-chrome" style="width: 5.5rem; height:
-            5.5rem; --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+            <ha-icon icon=mdi:google-chrome style="max-width: 100%; max-height:
+            100%; --mdc-icon-size: 18.5rem; color: #FFFFFF;"></ha-icon>
           app_name: Chrome
       - type: custom:button-card
         template: variable_template
@@ -238,8 +238,8 @@ cards:
               - padding-bottom: 6px
         custom_fields:
           svg_icon: >-
-            <ha-icon icon="mdi:youtube" style="width: 5.5rem; height: 5.5rem;
-            --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+            <ha-icon icon=mdi:youtube style="max-width: 100%; max-height: 100%;
+            --mdc-icon-size: 18.5rem; color: #FFFFFF;"></ha-icon>
           app_name: SmartTube
       - type: custom:button-card
         template: variable_template
@@ -296,8 +296,8 @@ cards:
               - padding-bottom: 6px
         custom_fields:
           svg_icon: >-
-            <ha-icon icon="mdi:file-cabinet" style="width: 5.5rem; height:
-            5.5rem; --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+            <ha-icon icon=mdi:file-cabinet style="max-width: 100%; max-height:
+            100%; --mdc-icon-size: 18.5rem; color: #FFFFFF;"></ha-icon>
           app_name: File Explorer
       - type: custom:button-card
         template: variable_template
@@ -354,6 +354,6 @@ cards:
               - padding-bottom: 6px
         custom_fields:
           svg_icon: >-
-            <ha-icon icon="mdi:cog" style="width: 5.5rem; height: 5.5rem;
-            --mdc-icon-size: 5.5rem; color: #FFFFFF;"></ha-icon>
+            <ha-icon icon=mdi:cog style="max-width: 100%; max-height: 100%;
+            --mdc-icon-size: 18.5rem; color: #FFFFFF;"></ha-icon>
           app_name: Portal Settings
