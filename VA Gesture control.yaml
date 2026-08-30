@@ -3,14 +3,6 @@ blueprint:
   description: "Listens for gesture events and dynamically routes navigation commands to the matching View Assist display."
   domain: automation
   input:
-    target_devices:
-      name: Target View Assist Displays
-      description: Select one or more View Assist display sensors (e.g., sensor.portal, sensor.portal_black).
-      selector:
-        entity:
-          integration: view_assist
-          domain: sensor
-          multiple: true
     gesture_event_entities:
       name: Gesture Event Sensors
       description: Select the corresponding gesture event entities to monitor.
@@ -86,26 +78,13 @@ conditions: []
 action:
   - variables:
       # Store user inputs
-      selected_targets: !input target_devices
       right1: !input right1
       right2: !input right2
       left1: !input left1
       left2: !input left2
-
-      # Extract the core hardware string from the trigger entity (e.g., 'event.vaca_cc1617ae5_gesture' -> 'vaca_cc1617ae5')
-      trigger_object_id: "{{ trigger.entity_id.split('.')[1] }}"
-      device_core_id: "{{ trigger_object_id.replace('event.', '').replace('_gesture', '') }}"
-
-      # Match the target display sensor whose attributes contain that device core ID
-      va_sensor: >-
-        {% set ns = namespace(found="") %}
-        {% for target in selected_targets %}
-          {% set attrs = states[target].attributes | string %}
-          {% if device_core_id in attrs %}
-            {% set ns.found = target %}
-          {% endif %}
-        {% endfor %}
-        {{ ns.found }}
+      triggered_entity: "{{ trigger.entity_id }}"
+      device_id: "{{device_id(triggered_entity)}}"
+      va_sensor: "{{view_assist_entity(device_id)}}"
 
   # Guard rail: Stop if no matching display sensor was found
   - condition: template

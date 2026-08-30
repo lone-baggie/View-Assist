@@ -16,14 +16,6 @@ blueprint:
           integration: vaca
           domain: number
           multiple: true
-    portal_sensors:
-      name: View Assist Portal Sensors
-      description: Select all View Assist portal sensors (e.g., sensor.portal_black, sensor.portal_white). The blueprint will match 'Voice device ID' against the trigger device.
-      selector:
-        entity:
-          integration: view_assist  
-          domain: sensor
-          multiple: true
 mode: single
 
 # Declare blueprint inputs as Jinja-accessible variables
@@ -36,10 +28,8 @@ triggers:
 actions:
   - variables:
      volume: "{{trigger.entity_id}}"
-     sensor_list: !input portal_sensors
      dev_id: "{{ device_id(volume)}}"
-     matched_sensor: >-
-       {{ sensor_list | select('is_state_attr', 'voice_device_id', dev_id) | first | default('') }}
+     matched_sensor: "{{view_assist_entity(dev_id)}}"
      sat: "{{ state_attr(matched_sensor,'mic_device') }}"
      media: "{{ state_attr(matched_sensor,'musicplayer_device') }}"
   - if:

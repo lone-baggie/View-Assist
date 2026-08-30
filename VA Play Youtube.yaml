@@ -23,12 +23,12 @@ blueprint:
   input:
     play_sentence:
       name: Resume / Play Music Phrase
-      default: "(play youtube|start youtube) [video][of] {video}"
+      default: "(open youtube|start youtube) [video][of] {video}"
       selector:
         text: {}
     stop_sentence:
       name: Stop Video Phrase
-      default: "stop youtube [video]"
+      default: "(stop youtube|close youtube) [video]"
       selector:
         text: {}
 
@@ -69,7 +69,7 @@ actions:
              query: "{{ media_id }}"
            response_variable: result
          - variables:
-             url: "https://tube.rvere.com/embed/?v={{ result.video_id }}&autoplay=1"
+             url: "https://tube.rvere.com//embed/?v={{ result.video_id }}"
          - action: view_assist.set_state
            target:
              entity_id: '{{ target_satellite_device }}'

@@ -6,14 +6,6 @@ blueprint:
     min_version: 2024.6.0
   domain: automation
   input:
-    target_devices:
-      name: Target View Assist Displays
-      description: Select one or more View Assist display sensors (e.g., sensor.portal, sensor.portal_black).
-      selector:
-        entity:
-          integration: view_assist
-          domain: sensor
-          multiple: true
     media_player_entities:
       name: Media Players
       description: Select the media players to monitor for active playback.
@@ -61,36 +53,12 @@ conditions: []
 action:
   - variables:
       # Capture blueprint inputs
-      selected_targets: !input target_devices
       music_path_val: !input music_path
       stop_path_val: !input stop_path
       triggered_player: "{{ trigger.entity_id }}"
-
-      # Extract device hash from media player entity (e.g., media_player.vaca_5ba4347b1_media_player_2 -> 5ba4347b1)
-      device_hash: >-
-        {% if '_' in triggered_player %}
-          {{ triggered_player.split('.')[1].split('_')[1] }}
-        {% else %}
-          {{ '' }}
-        {% endif %}
-
-      # Inspect selected target sensors and match against exact attribute key or raw attribute string
-      matching_display: >-
-        {% set ns = namespace(found="") %}
-        {% for target in selected_targets %}
-          {% set exact_attr = state_attr(target, 'musicplayer_device') %}
-          {% set attr_str = states[target].attributes | string if states[target] is defined else '' %}
-          {% set entity_str = target | string %}
-          
-          {# Check 1: Direct match on musicplayer_device attribute #}
-          {% if exact_attr == triggered_player %}
-            {% set ns.found = target %}
-          {# Check 2: Fallback to searching the device hash inside the attribute blob #}
-          {% elif device_hash != '' and (device_hash in attr_str or device_hash in entity_str) %}
-            {% set ns.found = target %}
-          {% endif %}
-        {% endfor %}
-        {{ ns.found }}
+      device_id: "{{device_id(triggered_player)}}"
+      matching_display: "{{view_assist_entity(device_id)}}"
+      
 
       # Determine target view path based on trigger ID
       target_path: >-
