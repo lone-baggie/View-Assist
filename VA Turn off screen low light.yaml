@@ -1,5 +1,5 @@
 blueprint:
-  name: "View Assist Turn off screen in low light"
+  name: "VA Turn off screen in low light"
   author: "Lone baggie"
   homeassistant:
     min_version: 2024.6.0
@@ -40,14 +40,29 @@ mode: parallel
 max: 10
 
 trigger:
-  - trigger: numeric_state
-    entity_id: !input light_sensors
-    below: !input threshold_lux
+  - trigger: illuminance.changed
+    target:
+        entity_id: !input light_sensors
+    options:
+      threshold:
+        type: below
+        value:
+          active_choice: number
+          number: !input threshold_lux
     id: dark
-  - trigger: numeric_state
-    entity_id: !input light_sensors
-    above: !input threshold_lux
+  - trigger: illuminance.changed
+    target:
+        entity_id: !input light_sensors
+    options:
+      threshold:
+        type: above
+        value:
+          active_choice: number
+          number: !input threshold_lux
     id: light
+
+
+
 
 action:
   - variables:

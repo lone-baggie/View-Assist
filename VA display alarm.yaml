@@ -1,5 +1,5 @@
 blueprint:
-  name: "View Assist Display alarms "
+  name: "VA - Display alarms "
   author: "Lone baggie"
   homeassistant:
     min_version: 2024.6.0

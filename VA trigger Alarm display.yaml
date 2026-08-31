@@ -1,5 +1,5 @@
 blueprint:
-  name: View Assist - Auto Switch to Alarms Dashboard
+  name: VA- Auto Switch to Alarms Dashboard
   description: >
     Displays the Alarms page when an alarm is being changed
   domain: automation

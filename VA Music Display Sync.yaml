@@ -1,5 +1,5 @@
 blueprint:
-  name: "View Assist - Music Display Sync"
+  name: "VA - Music Display Sync"
   description: "Monitors Vaca media players and automatically routes navigation commands to the matching View Assist display using attribute grepping when music starts or stops."
   author: Lonebaggie
   homeassistant:

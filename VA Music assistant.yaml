@@ -1,5 +1,5 @@
 blueprint:
-  name: VA Voice Control for Music Assistant
+  name: VA - Voice Control for Music Assistant
   author: Lonebaggie
   homeassistant:
     min_version: 2024.6.0

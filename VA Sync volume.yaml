@@ -1,5 +1,5 @@
 blueprint:
-  name: View Assist Volume Sync
+  name: VA - Volume Sync
   description: >-
     Syncs the volume of the pysical volume of the device to the media player. If using Music assistant. 
     

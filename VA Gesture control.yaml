@@ -1,5 +1,5 @@
 blueprint:
-  name: "View Assist - Gesture Control"
+  name: "VA - Gesture Control"
   description: "Listens for gesture events and dynamically routes navigation commands to the matching View Assist display."
   domain: automation
   input:
