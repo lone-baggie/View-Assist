@@ -44,7 +44,7 @@ blueprint:
 
 mode: single
 
-trigger:
+triggers:
   - trigger: conversation
     command: !input alarm_sentence
 

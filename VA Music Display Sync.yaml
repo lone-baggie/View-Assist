@@ -1,6 +1,6 @@
 blueprint:
   name: "VA - Music Display Sync"
-  description: "Monitors Vaca media players and automatically routes navigation commands to the matching View Assist display using attribute grepping when music starts or stops."
+  description: "Monitors View Assist media players and automatically routes navigation commands to the matching View Assist display when music starts or stops."
   author: Lonebaggie
   homeassistant:
     min_version: 2024.6.0
@@ -30,13 +30,12 @@ blueprint:
 mode: queued
 max: 10
 
-trigger:
-  - trigger: media_player.started_playing
-    target:
-      entity_id: !input media_player_entities
-    options:
-      behavior: each
-      for: "00:00:03"
+triggers:
+  - trigger: state
+    entity_id: !input media_player_entities
+    to: "playing"
+    for:
+      seconds: 3
     id: playing
 
   - trigger: state
@@ -50,31 +49,42 @@ trigger:
 
 conditions: []
 
-action:
+actions:
   - variables:
-      # Capture blueprint inputs
-      music_path_val: !input music_path
-      stop_path_val: !input stop_path
+      music_path: !input music_path
+      stop_path: !input stop_path
       triggered_player: "{{ trigger.entity_id }}"
-      device_id: "{{device_id(triggered_player)}}"
-      matching_display: "{{view_assist_entity(device_id)}}"
-      
+      matching_display: "{{view_assist_entity(triggered_player)}}"
 
-      # Determine target view path based on trigger ID
-      target_path: >-
-        {% if trigger.id == 'playing' %}
-          {{ music_path_val }}
-        {% else %}
-          {{ stop_path_val }}
-        {% endif %}
+  # Only proceed if we actually matched a display device
+  - condition: template
+    value_template: "{{ matching_display != '' }}"
 
-  # Dispatch navigation command only if a display was successfully matched
-  - if:
-      - condition: template
-        value_template: "{{ matching_display != '' }}"
-    then:
-      - action: view_assist.navigate
-        data:
-          device: "{{ matching_display }}"
-          path: "{{ target_path }}"
-          revert_timeout: 99999999
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: "playing"
+        sequence:
+          - action: view_assist.set_state
+            target:
+              entity_id: "{{ matching_display }}"
+            data:
+              mode: hold
+          - action: view_assist.navigate
+            data:
+              device: "{{ matching_display }}"
+              path: "{{ music_path }}"
+
+      - conditions:
+          - condition: trigger
+            id: "stopped"
+        sequence:
+          - action: view_assist.set_state
+            target:
+              entity_id: "{{ matching_display }}"
+            data:
+              mode: normal
+          - action: view_assist.navigate
+            data:
+              device: "{{ matching_display }}"
+              path: "{{ stop_path }}"

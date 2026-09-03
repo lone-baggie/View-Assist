@@ -37,7 +37,7 @@ blueprint:
 
 mode: single
 
-trigger:
+triggers:
   - platform: state
     entity_id: !input alarm_count_sensor
 

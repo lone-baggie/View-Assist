@@ -22,118 +22,128 @@ blueprint:
       * <b>{Curly Braces}</b> = Extraction slots. <b>Do not change the slot names!</b>
     </details>
   domain: automation
-
   input:
-    # --- Speaker Configuration ---
-    default_speaker:
-      name: Default Speaker
-      description: The speaker to use if the satellite has no matching local media player.
-      selector:
-        entity:
-          filter:
-            - domain: media_player
-    remote_speaker:
-      name: Remote Speaker
-      description: Target speaker when saying "on remote speaker". Leave blank if unused.
-      default: ""
-      selector:
-        entity:
-          filter:
-            - domain: media_player
-    remote_speaker_trigger_phrase:
-      name: Remote Speaker Voice Modifier
-      description: Spoken phrase that forces audio output to the remote speaker instead of the local satellite.
-      default: "on remote speaker"
-      selector:
-        text: {}
+    target_entities_section:
+      name: Media Players
+      description: Configure media players.
+      icon: mdi:speaker-multiple
+      collapsed: true
+      input:  
+        # --- Speaker Configuration ---
+        default_speaker:
+          name: Default Speaker
+          description: The speaker to use if the satellite has no matching local media player.
+          selector:
+            entity:
+              filter:
+                - domain: media_player
+        remote_speaker:
+          name: Remote Speaker
+          description: Remote Speaker.
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: media_player
+        remote_speaker_trigger_phrase:
+          name: Remote Speaker Voice Modifier
+          description: Spoken phrase that forces audio output to the remote speaker instead of the local satellite.
+          default: "on remote speaker"
+          selector:
+            text: {}
+        volume_step_percentage:
+          name: Volume Step Percentage
+          description: Percentage amount to step volume up or down.
+          default: 5
+          selector:
+            number:
+              min: 1
+              max: 50
+              step: 1
+              unit_of_measurement: "%"
 
-    volume_step_percentage:
-      name: Volume Step Percentage
-      description: Percentage amount to step volume up or down.
-      default: 5
-      selector:
-        number:
-          min: 1
-          max: 50
-          step: 1
-          unit_of_measurement: "%"
+    voice_triggers_section:
+      name: Voice Command Triggers
+      description: Custom sentence patterns for media control, navigation, and modifier phrases.
+      icon: mdi:account-voice
+      collapsed: true
+      input:
+        # --- Artist Section ---
+        artist_sentence:
+          name: Artist Command Phrase
+          description: Single master pattern for playing or shuffling an artist.
+          default: "(play|listen to|put on|stream|shuffle|randomise) [the ](artist|band|group|musician) {artist} [on remote speaker]"
+          selector:
+            text: {}
 
-    # --- Artist Section ---
-    artist_sentence:
-      name: Artist Command Phrase
-      description: Single master pattern for playing or shuffling an artist.
-      default: "(play|listen to|put on|stream|shuffle|randomise) [the ](artist|band|group|musician) {artist} [on remote speaker]"
-      selector:
-        text: {}
+        # --- Song Section ---
+        track_sentence:
+          name: Track Command Phrase
+          description: Single master pattern for playing or shuffling a specific song.
+          default: "(play|listen to|put on|stream|shuffle|randomise) [the ](song|track|tune) {track}[ [by ][the ](artist|band|group|musician) {artist}] [on remote speaker]"
+          selector:
+            text: {}
 
-    # --- Song Section ---
-    track_sentence:
-      name: Track Command Phrase
-      description: Single master pattern for playing or shuffling a specific song.
-      default: "(play|listen to|put on|stream|shuffle|randomise) [the ](song|track|tune) {track}[ [by ][the ](artist|band|group|musician) {artist}] [on remote speaker]"
-      selector:
-        text: {}
+        # --- Playlist Section ---
+        playlist_sentence:
+          name: Playlist Command Phrase
+          description: Single master pattern for playing or shuffling a playlist.
+          default: "(play|listen to|put on|stream|shuffle|randomise) [the ](playlist) {playlist} [on remote speaker]"
+          selector:
+            text: {}
 
-    # --- Playlist Section ---
-    playlist_sentence:
-      name: Playlist Command Phrase
-      description: Single master pattern for playing or shuffling a playlist.
-      default: "(play|listen to|put on|stream|shuffle|randomise) [the ](playlist) {playlist} [on remote speaker]"
-      selector:
-        text: {}
+        # --- Album Section ---
+        album_sentence:
+          name: Album Command Phrase
+          description: Single master pattern for playing or shuffling an album.
+          default: "(play|listen to|put on|stream|shuffle|randomise) [the ](album|ep|record|compilation) {album}[ [by ][the ](artist|band|group) {artist}] [on remote speaker]"
+          selector:
+            text: {}
 
-    # --- Album Section ---
-    album_sentence:
-      name: Album Command Phrase
-      description: Single master pattern for playing or shuffling an album.
-      default: "(play|listen to|put on|stream|shuffle|randomise) [the ](album|ep|record|compilation) {album}[ [by ][the ](artist|band|group) {artist}] [on remote speaker]"
-      selector:
-        text: {}
+        # --- Radio Section ---
+        radio_sentence:
+          name: Radio Command Phrase
+          description: Master pattern for tuning into radio stations.
+          default: "(play|listen to|put on|turn on|stream) [the ](radio|BBC|station|radio station) {radio} [on remote speaker]"
+          selector:
+            text: {}
 
-    # --- Radio Section ---
-    radio_sentence:
-      name: Radio Command Phrase
-      description: Master pattern for tuning into radio stations.
-      default: "(play|listen to|put on|turn on|stream) [the ](radio|BBC|station|radio station) {radio} [on remote speaker]"
-      selector:
-        text: {}
-
-    # --- Audio Controls Section ---
-    next_sentence:
-      name: Next Track Phrase
-      default: "(next track|next song|skip|skip track|skip song) [on remote speaker]"
-      selector:
-        text: {}
-    previous_sentence:
-      name: Previous Track Phrase
-      default: "(previous track|previous song|back|go back) [on remote speaker]"
-      selector:
-        text: {}
-    volume_up_sentence:
-      name: Volume Up Phrase
-      default: "(louder|turn it up|crank it up|raise the volume|volume up) [on remote speaker]"
-      selector:
-        text: {}
-    volume_down_sentence:
-      name: Volume Down Phrase
-      default: "(quieter|turn it down|lower the volume|volume down) [on remote speaker]"
-      selector:
-        text: {}
-    volume_set_sentence:
-      name: Set Absolute Volume Phrase
-      default: "(set|change|turn) [the ]volume [to ]{volume}[ percent| %] [on remote speaker]"
-      selector:
-        text: {}
-    stop_sentence:
-      name: Stop Music Phrase
-      default: "(stop|cancel|pause|hush|shut up) [the ](music|audio|radio|playback) [on remote speaker]"
-      selector:
-        text: {}
-    play_sentence:
-      name: Resume / Play Music Phrase
-      default: "(play|start|begin|resume) [the ](music|audio|radio|playback) [on remote speaker]"
-      selector:
-        text: {}
+        # --- Audio Controls Section ---
+        next_sentence:
+          name: Next Track Phrase
+          default: "(next track|next song|skip|skip track|skip song) [on remote speaker]"
+          selector:
+            text: {}
+        previous_sentence:
+          name: Previous Track Phrase
+          default: "(previous track|previous song|back|go back) [on remote speaker]"
+          selector:
+            text: {}
+        volume_up_sentence:
+          name: Volume Up Phrase
+          default: "(louder|turn it up|crank it up|raise the volume|volume up) [on remote speaker]"
+          selector:
+            text: {}
+        volume_down_sentence:
+          name: Volume Down Phrase
+          default: "(quieter|turn it down|lower the volume|volume down) [on remote speaker]"
+          selector:
+            text: {}
+        volume_set_sentence:
+          name: Set Absolute Volume Phrase
+          default: "(set|change|turn) [the ]volume [to ]{volume}[ percent| %] [on remote speaker]"
+          selector:
+            text: {}
+        stop_sentence:
+          name: Stop Music Phrase
+          default: "(stop|cancel|pause|hush|shut up) [the ](music|audio|radio|playback) [on remote speaker]"
+          selector:
+            text: {}
+        play_sentence:
+          name: Resume / Play Music Phrase
+          default: "(play|start|begin|resume) [the ](music|audio|radio|playback) [on remote speaker]"
+          selector:
+            text: {}
 
 mode: single
 
@@ -185,32 +195,34 @@ actions:
       remote_player: !input remote_speaker
       remote_modifier: !input remote_speaker_trigger_phrase
       step_pct: !input volume_step_percentage
-      volume: "{{trigger.slots.volume}}"
+      volume: "{{ trigger.slots.volume if 'volume' in trigger.slots else 0 }}"
       target_satellite_device: '{{ view_assist_entity(trigger.device_id) }}'
-      target_mediaplayer_device: '{{ state_attr(target_satellite_device, ''mediaplayer_device'')}}'
-      target_satellite_device_type: '{{ state_attr(target_satellite_device, ''type'')}}'
+      target_mediaplayer_device: '{{ state_attr(target_satellite_device, ''mediaplayer_device'') }}'
+      target_satellite_device_type: '{{ state_attr(target_satellite_device, ''type'') }}'
       target_musicplayer_device: '{{ state_attr(target_satellite_device, ''musicplayer_device'') }}'
-
 
       # Extract 'Musicplayer device' attribute from matched sensor
       base_speaker: >-
-        {% if target_mediaplayer_device != '' %}
-          {{ target_mediaplayer_device }}
+        {% if target_musicplayer_device != ''  %}
+          {{ target_musicplayer_device }}
         {% else %}
           {{ default_player }}
         {% endif %}
 
       # Deriving voice volume number entity straight from base_speaker entity ID
-      mute: "{{ state_attr(target_satellite_device, 'mute_switch')}}"
-      speaker_vol: "{{ mute | replace('switch', 'number') | replace('mute', 'music_volume') }}"
+      mute: "{{ state_attr(target_satellite_device, 'mute_switch') }}"
+      speaker_vol: "{{ mute | replace('switch', 'number') | replace('mute', 'music_volume') if mute else '' }}"
 
       vol: >-
-        {% set vol_calc = (states(speaker_vol)|float(0))/18|round(2) %}
-        {{ vol_calc }}
+        {% if speaker_vol != '' and states(speaker_vol) not in ['unknown', 'unavailable'] %}
+          {{ ((states(speaker_vol) | float(0)) / 18) | round(2) }}
+        {% else %}
+          0.5
+        {% endif %}
 
       # Identify if remote target was explicitly requested
       raw_sentence: "{{ trigger.sentence | lower }}"
-      has_remote_speaker: "{{ remote_modifier | lower in (trigger.sentence | lower) }}"
+      has_remote_speaker: "{{ remote_modifier | lower in raw_sentence if remote_modifier else false }}"
 
       # Validate remote speaker hardware status
       remote_is_available: >-
@@ -220,11 +232,11 @@ actions:
       target_player: "{{ remote_player if has_remote_speaker else base_speaker }}"
 
       # Hardware shuffle flag check
-      is_shuffle: "{{ 'shuffle' in (trigger.sentence | lower) }}"
+      is_shuffle: "{{ 'shuffle' in raw_sentence }}"
 
       # Strip remote modifier and convert 'shuffle' -> 'play' for AI processing
       normalized_sentence: >-
-        {% set no_remote = (trigger.sentence | lower) | replace(remote_modifier | lower, '') %}
+        {% set no_remote = raw_sentence | replace(remote_modifier | lower, '') if remote_modifier else raw_sentence %}
         {% if 'shuffle' in no_remote %}
           {{ no_remote | replace('shuffle', 'play') | trim }}
         {% else %}
@@ -246,6 +258,7 @@ actions:
       - set_conversation_response: "Remote speaker not found."
       - alias: "Halt Automation Execution"
         stop: "Remote speaker requested but entity is unavailable or missing."
+
   # Step 4: Fast-Path Hardware Branching via Trigger IDs
   - choose:
       # Branch 1: Stop / Pause
@@ -298,8 +311,7 @@ actions:
             target:
               entity_id: "{{ speaker_vol }}"
             data:
-              value: "{{((volume|float(2)/100)*18)|round(0)}}"
-                    
+              value: "{{ ((volume | float(2) / 100) * 18) | round(0) }}"
 
       # Branch 6: Relative Volume Up (Fast Path mapped to 0-18 scale)
       - conditions:

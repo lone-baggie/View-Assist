@@ -1,5 +1,8 @@
 blueprint:
   name: "VA - Gesture Control"
+  author: "Lone baggie"
+  homeassistant:
+    min_version: 2024.6.0
   description: "Listens for gesture events and dynamically routes navigation commands to the matching View Assist display."
   domain: automation
   input:

@@ -1,10 +1,10 @@
 blueprint:
-  name: "VA Turn off screen in low light"
+  name: "VA - Turn off screen in low light"
   author: "Lone baggie"
   homeassistant:
     min_version: 2024.6.0
   description: >-
-    Turns off the screen  in low light levels
+    Turns off the screen in low light levels
   domain: automation
   input:
     light_sensors:
@@ -16,15 +16,6 @@ blueprint:
           device_class: illuminance
           integration: vaca
           multiple: true
-    use_screen_entity:
-      name: Control Screen with Screen switch or Screen Saver switch
-      description: >-
-        Toggle ON to use Screen switch
-        Leave OFF to use Screen saver switch (screen saver emulates screen off by display black screen )
-        Only use Screen saver if screen switch not avlaliable  for your device 
-      default: false
-      selector:
-        boolean: {}
     threshold_lux:
       name: Illuminance Threshold (Lux)
       description: Light level threshold for dark vs light state.
@@ -39,10 +30,10 @@ blueprint:
 mode: parallel
 max: 10
 
-trigger:
+triggers:
   - trigger: illuminance.changed
     target:
-        entity_id: !input light_sensors
+      entity_id: !input light_sensors
     options:
       threshold:
         type: below
@@ -52,7 +43,7 @@ trigger:
     id: dark
   - trigger: illuminance.changed
     target:
-        entity_id: !input light_sensors
+      entity_id: !input light_sensors
     options:
       threshold:
         type: above
@@ -61,27 +52,24 @@ trigger:
           number: !input threshold_lux
     id: light
 
-
-
-
 action:
   - variables:
-      is_screen: !input use_screen_entity
-      is_dark: "{{ trigger.id == 'dark' }}"
-      target_suffix: "{{ 'screen' if is_screen else 'screen_saver' }}"
+      trigger_id: "{{ trigger.id }}"
+      trigger_entity: "{{ trigger.entity_id }}"
+
       
       # Derived target entity string
       target_entity: >-
-        {{ trigger.entity_id.replace("sensor", "switch").replace("light_level", target_suffix) }}
+        {{ trigger_entity.replace("sensor", "switch").replace("light_level","screen") }}
       
       # Determine action: 
       # Screen Saver mode: dark -> ON, light -> OFF
       # Screen mode (inverted): dark -> OFF, light -> ON
       target_action: >-
-        {% if is_screen %}
-          {{ 'turn_off' if is_dark else 'turn_on' }}
+        {% if trigger_id == 'light' %}
+          turn_on
         {% else %}
-          {{ 'turn_on' if is_dark else 'turn_off' }}
+          turn_off
         {% endif %}
 
   - action: "switch.{{ target_action }}"

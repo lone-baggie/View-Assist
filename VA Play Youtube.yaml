@@ -75,6 +75,7 @@ actions:
              entity_id: '{{ target_satellite_device }}'
            data:
              url: '{{ url }}'       
+            
          - action: view_assist.navigate
            data:
              device: "{{target_satellite_device}}"

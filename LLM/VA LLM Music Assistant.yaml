@@ -11,7 +11,7 @@ blueprint:
     # ==================================================================
     target_entities_section:
       name: Target Entities & AI Engine
-      description: Configure media players, portal sensors, and the local AI Task entity.
+      description: Configure media players and the local AI Task entity.
       icon: mdi:speaker-multiple
       collapsed: true
       input:
@@ -28,6 +28,12 @@ blueprint:
           selector:
             entity:
               domain: media_player
+        remote_speaker_trigger_phrase:
+          name: Remote Speaker Voice Modifier
+          description: Spoken phrase that forces audio output to the remote speaker instead of the local satellite.
+          default: "on remote speaker"
+          selector:
+            text: {}
 
         ai_task_entity:
           name: AI Task Entity
@@ -45,12 +51,6 @@ blueprint:
       icon: mdi:account-voice
       collapsed: true
       input:
-        remote_speaker_trigger_phrase:
-          name: Remote Speaker Voice Modifier
-          description: Spoken phrase that forces audio output to the remote speaker instead of the local satellite.
-          default: "on remote speaker"
-          selector:
-            text: {}
         play_trigger_sentences:
           name: Play / Stream / Shuffle Sentences
           description: Trigger pattern sent to ai_task for natural language search extraction.
@@ -188,8 +188,8 @@ action:
 
       # Extract 'Musicplayer device' attribute from matched sensor
       base_speaker: >-
-        {% if target_mediaplayer_device != '' %}
-          {{ target_mediaplayer_device }}
+        {% if target_musicplayer_device != '' %}
+          {{ target_musicplayer_device }}
         {% else %}
           {{ default_player }}
         {% endif %}
