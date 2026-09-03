@@ -1,0 +1,2643 @@
+button_card_templates:
+  variable_template:
+    variables:
+      dashboardversion: 1.4.0
+      var_assistsat_entity: |-
+        [[[
+          return localStorage.getItem("view_assist_sensor")
+        ]]]
+      var_dashboard: |-
+        [[[
+          try {
+            return hass.states[variables.var_assistsat_entity].attributes.dashboard || '/view-assist';
+          } catch {
+            return '/view-assist';
+          }
+        ]]]
+      var_mic_switch: |-
+        [[[
+          try {
+            var micdevice = hass.states[variables.var_assistsat_entity].attributes.mute_switch;
+            return `${micdevice}`;
+          } catch { return ""}
+        ]]]
+      var_wake_switch: |-
+        [[[
+          try {
+            var micdevice = hass.states[variables.var_assistsat_entity].attributes.mic_device;
+            if (micdevice.startsWith("assist_satellite.")) {
+              var wakebutton = micdevice.replace("assist_satellite.", "button.") + "_wake";
+              if (wakebutton in hass.states) {
+                return `${wakebutton}`;
+              }
+            }
+            return "";
+          } catch {
+            return "";
+          }
+        ]]]
+      var_mediaplayer_device: |-
+        [[[
+          try {
+            var mediadevice = hass.states[variables.var_assistsat_entity].attributes.mediaplayer_device;
+            return `${mediadevice}`;
+          } catch { return "";}
+        ]]]
+      var_mediaplayer_mute: |-
+        [[[
+          try {
+            var mediadevice = hass.states[variables.var_assistsat_entity].attributes.mediaplayer_device;
+            var mediaplayerstate = hass.states[mediadevice].attributes.is_volume_muted;
+            return `${mediaplayerstate}`;
+          } catch { return "";}
+        ]]]
+      var_musicplayer_device: |-
+        [[[
+          try {
+            var mediadevice = hass.states[variables.var_assistsat_entity].attributes.musicplayer_device;
+            return `${mediadevice}`;
+          } catch { return "";}
+        ]]]
+      var_musicplayer_mute: |-
+        [[[
+          try {
+            var mediadevice = hass.states[variables.var_assistsat_entity].attributes.musicplayer_device;
+            var mediaplayerstate = hass.states[mediadevice].attributes.is_volume_muted;
+            return `${mediaplayerstate}`;
+          } catch { return "";}
+        ]]]
+      var_current_time: |-
+        [[[
+          return `<viewassist-clock server_time=true mode='time' hour24=${variables.var_assistsat_entity_use_24_hour_time}></viewassist-clock>`;
+        ]]]
+      var_date_short: |-
+        [[[
+          return `<viewassist-clock server_time=true mode="date"></viewassist-clock>`;
+        ]]]
+      var_date_long: |-
+        [[[
+          return `<viewassist-clock server_time=true format='%A, %B %d, %Y'></viewassist-clock>`;
+        ]]]
+      var_assistsat_entity_font_style: |
+        [[[
+          try
+          {
+            return states[variables.var_assistsat_entity].attributes.font_style;
+          } catch { return  "Roboto"}
+        ]]]
+      var_assistsat_entity_weather_entity: |
+        [[[
+          try
+          {
+            return states[variables.var_assistsat_entity].attributes.weather_entity;
+          } catch { return  ""}
+        ]]]
+      var_assistsat_entity_responsive_status_icons_size: |
+        [[[
+          try {
+            const baseSize = states[variables.var_assistsat_entity].attributes.status_icons_size || "6vw";
+
+            if (window.viewAssistResponsive?.orientation === "portrait") {
+              const numericValue = parseFloat(baseSize);
+              const unit = baseSize.replace(numericValue.toString(), '');
+              return `${numericValue * 1.5}${unit}`;
+            }
+
+            return baseSize;
+          } catch {
+            return window.viewAssistResponsive?.orientation === "portrait" ? "9vw" : "6vw";
+          }
+        ]]]
+      var_assistsat_entity_use_24_hour_time: |
+        [[[
+          try
+          {
+            return states[variables.var_assistsat_entity].attributes.use_24_hour_time;
+          } catch { return  false}
+        ]]]
+      var_title: |-
+        [[[
+          try
+          {
+            return states[variables.var_assistsat_entity].attributes.title;
+          } catch { return  ""}
+        ]]]
+      var_message: |-
+        [[[
+          try
+          {
+            return states[variables.var_assistsat_entity].attributes.message;
+          } catch { return  ""}
+        ]]]
+      var_image: |-
+        [[[
+          try
+          {
+            return states[variables.var_assistsat_entity].attributes.image;
+          } catch { return  ""}
+        ]]]
+      var_font_size: |-
+        [[[
+          try
+          {
+            return states[variables.var_assistsat_entity].attributes.message_font_size;
+          }
+          catch { return  ""}
+        ]]]
+      var_weather_temperature: |-
+        [[[
+          try
+          {
+            return (states[variables.var_assistsat_entity_weather_entity].attributes.temperature  + '°');
+          }
+          catch { return  ""}
+        ]]]
+      var_weather_icon: |-
+        [[[
+          const weatherIconsDay  = {
+            "clear-night": "mdi:weather-night",
+            "cloudy": "mdi:weather-cloudy",
+            "dust": "mdi:weather-dust",
+            "fog": "mdi:weather-fog",
+            "hail": "mdi:weather-hail",
+            "hazy": "mdi:weather-hazy",
+            "hurricane": "mdi:weather-hurricane",
+            "lightning": "mdi:weather-lightning",
+            "lightning-rainy": "mdi:weather-lightning-rainy",
+            "partlycloudy": "mdi:weather-partly-cloudy",
+            "partly-lightning": "mdi:weather-partly-lightning",
+            "partly-rainy": "mdi:weather-partly-rainy",
+            "partly-snowy": "mdi:weather-partly-snowy",
+            "partly-snowy-rainy": "mdi:weather-partly-snowy-rainy",
+            "pouring": "mdi:weather-pouring",
+            "rainy": "mdi:weather-rainy",
+            "snowy": "mdi:weather-snowy",
+            "snowy-heavy": "mdi:weather-snowy-heavy",
+            "snowy-rainy": "mdi:weather-snowy-rainy",
+            "sunny": "mdi:weather-sunny",
+            "tornado": "mdi:weather-tornado",
+            "windy":  "mdi:weather-windy",
+            "windy-variant": "mdi:weather-windy-variant",
+          };
+          const weatherIconsNight = {
+            ...weatherIconsDay,
+            clear: "mdi:weather-night",
+            sunny: "mdi:weather-night",
+            partlycloudy: "mdi:weather-night-partly-cloudy",
+          };
+          try
+          {
+            var condition = states[variables.var_assistsat_entity_weather_entity].state;
+            if (states['sun.sun'] === 'above_horizon') {
+              var weather_icon = weatherIconsDay[condition];
+            } else {
+              var weather_icon = weatherIconsDay[condition];
+            }
+
+            if (typeof(weather_icon) === 'undefined') {
+              var weather_icon = "mdi:help"
+            }
+            return `${weather_icon}`;
+          } catch { return  ""}
+        ]]]
+      var_current_view: |-
+        [[[
+          try {
+            const pathname = window.location.pathname;
+            const match = pathname.match(/\/view-assist\/([^\/]+)/);
+            return match && match[1] ? match[1] : "";
+          } catch { 
+            return ""; 
+          }
+        ]]]
+      var_alarm_switch: |-
+        [[[
+          try {
+            var micdevice = hass.states[variables.var_assistsat_entity].attributes.mic_device;
+            if (micdevice.startsWith("assist_satellite.")) {
+              var alarmswitch = micdevice.replace("assist_satellite.", "switch.") + "_alarm";
+              if (alarmswitch in hass.states) {
+                return `${alarmswitch}`;
+              }
+            }
+            return "";
+          } catch {
+            return "";
+          }
+        ]]]
+  responsive_base:
+    variables:
+      var_orientation_sensor: |-
+        [[[
+          try {
+            const orientationSensor = hass.states[variables.var_assistsat_entity]?.attributes?.orientation_sensor;
+
+            if (orientationSensor && orientationSensor in hass.states) {
+              const state = hass.states[orientationSensor].state;
+              if (state === "portrait" || state === "landscape") {
+                return state;
+              }
+            }
+
+            return "";
+          } catch {
+            return "";
+          }
+        ]]]
+      var_orientation:
+        value: |-
+          [[[
+            const sensorOrientation = variables.var_orientation_sensor;
+            const windowOrientation = window.innerHeight > window.innerWidth 
+              ? "portrait" 
+              : "landscape";
+            const currentOrientation = sensorOrientation || windowOrientation;
+
+            if (!window.viewAssistResponsive) {
+              window.viewAssistResponsive = {
+                orientation: currentOrientation,
+                sensor_available: !!sensorOrientation,
+                lastUpdate: Date.now()
+              };
+            } else {
+              const oldOrientation = window.viewAssistResponsive.orientation;
+              window.viewAssistResponsive.sensor_available = !!sensorOrientation;
+
+              if (oldOrientation !== currentOrientation) {
+                window.viewAssistResponsive.orientation = currentOrientation;
+                window.viewAssistResponsive.lastUpdate = Date.now();
+
+                window.dispatchEvent(new CustomEvent('view-assist-responsive-change', {
+                  detail: window.viewAssistResponsive,
+                  bubbles: true
+                }));
+              }
+            }
+
+            return window.viewAssistResponsive.orientation;
+          ]]]
+        force_eval: true
+  body_template:
+    template:
+      - variable_template
+      - status_icons_content
+      - responsive_base
+    show_state: false
+    show_icon: false
+    show_name: false
+    tap_action:
+      action: call-service
+      service: view_assist.set_state
+      service_data:
+        entity_id: >-
+          [[[ try { return variables.var_assistsat_entity } catch { return  ""
+          }]]]
+        mode: hold
+    double_tap_action:
+      action: call-service
+      service: view_assist.set_state
+      service_data:
+        entity_id: >-
+          [[[ try { return variables.var_assistsat_entity } catch { return  "" }
+          ]]]
+        mode: normal
+    hold_action:
+      action: call-service
+      service: switch.toggle
+      service_data:
+        entity_id: '[[[ try { return variables.var_mic_switch } catch { return  "" } ]]]'
+    styles:
+      grid:
+        - grid-template-areas: |
+            "title status"
+            "message message"
+            "assist assist"
+        - grid-template-rows: min-content 1fr
+        - grid-template-columns: 1fr 1fr
+        - row-gap: .5rem
+      card:
+        - min-height: |-
+            [[[
+              try {
+                const screenMode = hass.states[variables.var_assistsat_entity]?.attributes?.screen_mode;
+                if (screenMode === 'no_hide' || screenMode === 'hide_sidebar') {
+                  return 'calc(100vh - var(--header-height))';
+                }
+                return '100vh';
+              } catch {
+                return '100vh';
+              }
+            ]]]
+        - max-height: |-
+            [[[
+              try {
+                const screenMode = hass.states[variables.var_assistsat_entity]?.attributes?.screen_mode;
+                if (screenMode === 'no_hide' || screenMode === 'hide_sidebar') {
+                  return 'calc(100vh - var(--header-height))';
+                }
+                return '100vh';
+              } catch {
+                return '100vh';
+              }
+            ]]]
+        - height: |-
+            [[[
+              try {
+                const screenMode = hass.states[variables.var_assistsat_entity]?.attributes?.screen_mode;
+                if (screenMode === 'no_hide' || screenMode === 'hide_sidebar') {
+                  return 'calc(100vh - var(--header-height))';
+                }
+                return '100vh';
+              } catch {
+                return '100vh';
+              }
+            ]]]
+        - aspect-ratio: |-
+            [[[
+              if (!window.viewAssistResponsive) return "16 / 9";
+
+              return window.viewAssistResponsive.orientation === "portrait" ? "9 / 16" : "16 / 9";
+            ]]]
+        - background: |
+            [[[
+              if (variables.background != null) {
+                return `center / cover no-repeat url(${variables.background})`
+              } else if (variables.var_background != null) {
+                  return `center / cover no-repeat url(${variables.var_background})`
+              } else {
+                return `center / cover no-repeat ${variables.background_color}`
+              }
+            ]]]
+        - background-size: cover
+        - border-radius: 0px
+        - overflow: hidden
+        - color: white
+        - font-family: |-
+            [[[
+              return `"${variables.var_assistsat_entity_font_style}", sans-serif`;
+            ]]]
+        - font-weight: 300
+        - position: relative
+        - box-sizing: border-box
+      custom_fields:
+        title:
+          - position: absolute
+          - justify-self: start
+          - align-self: start
+          - z-index: 1
+          - font-size: |-
+              [[[
+                return window.viewAssistResponsive?.orientation === "portrait" ? "220%" : "200%";
+              ]]]
+          - font-weight: 400
+          - width: max-content
+          - margin-left: 2%
+          - margin-top: -4%
+        status:
+          - position: absolute
+          - justify-self: end
+          - align-self: end
+          - justify-content: right
+          - top: 0vh
+          - right: 0vw
+          - z-index: 1
+  status_icons_content:
+    custom_fields:
+      title: '[[[ return variables.var_title ]]]'
+      status:
+        card:
+          type: custom:layout-card
+          layout_type: custom:horizontal-layout
+          cards:
+            - type: custom:layout-card
+              layout_type: grid-layout
+              layout:
+                margin: 0
+                card_margin: 0
+                place-content: end
+                grid-template-columns: |-
+                  [[[
+                    const baseIconSize = variables.var_assistsat_entity_responsive_status_icons_size;
+                    return `repeat(auto-fit, minmax(${baseIconSize}, ${baseIconSize}))`;
+                  ]]]
+              cards: |-
+                [[[{
+                  const buttonList = [];
+
+                  try {
+                    const vaEntity = variables.var_assistsat_entity;
+                    if (!vaEntity || !hass.states[vaEntity]) {
+                      return [];
+                    }
+
+                    const statusIcons = hass.states[vaEntity].attributes.status_icons || [];
+                    const menuItems = hass.states[vaEntity].attributes.menu_items || [];
+                    const menuActive = hass.states[vaEntity].attributes.menu_active || false;
+                    const currentView = variables.var_current_view;
+
+                    const availableTemplates = new Set();
+                    try {
+                      const lovelace = document.querySelector("home-assistant")
+                        ?.shadowRoot?.querySelector("home-assistant-main")
+                        ?.shadowRoot?.querySelector("ha-drawer partial-panel-resolver ha-panel-lovelace")
+                        ?.lovelace;
+
+                      if (lovelace?.config?.button_card_templates) {
+                        Object.keys(lovelace.config.button_card_templates).forEach(template => {
+                          availableTemplates.add(template);
+                        });
+                      }
+                    } catch (e) {
+                    }
+
+                    function isCurrentView(item) {
+                      if (!currentView) return false;
+
+                      if (typeof item === 'string' && !item.includes(':')) {
+                        if (item === currentView) return true;
+
+                        const homePath = hass.states[vaEntity]?.attributes?.home_screen || "/view-assist/clock";
+                        const homeView = homePath.split('/').pop() || "clock";
+                        const templateViewMap = {
+                          "home": homeView
+                        };
+                        if (templateViewMap[item] === currentView) return true;
+                        return false;
+                      }
+
+                      if (typeof item === 'string' && item.includes(':')) {
+                        const parts = item.split('|');
+                        const typeAndTarget = parts[0];
+                        const [type, target] = typeAndTarget.split(':');
+
+                        if (type === 'view') {
+                          const viewName = target.includes('/') ?
+                            target.split('/').pop() : target;
+                          return viewName === currentView;
+                        }
+                      }
+
+                      return false;
+                    }
+
+                    const addedItems = new Set();
+
+                    function addIconToList(icon, isDynamicItem = false) {
+                      if (icon === "menu") return;
+
+                      if (isCurrentView(icon)) {
+                        return;
+                      }
+
+                      let buttonConfig;
+
+                      if (isDynamicItem) {
+                        const type = icon.split(':')[0];
+                        buttonConfig = {
+                          type: "custom:button-card",
+                          template: `dynamic_${type}_item`,
+                          variables: {
+                            menu_item: icon,
+                            entity_id: vaEntity
+                          }
+                        };
+                      } else {
+                        if (availableTemplates.size > 0 && !availableTemplates.has(icon)) {
+                          buttonConfig = {
+                            type: "custom:button-card",
+                            template: "icon_template",
+                            icon: "mdi:alert-circle-outline",
+                            name: icon,
+                            styles: {
+                              card: [{ "border": "2px dashed rgba(255, 152, 0, 0.8)" }],
+                              icon: [{ "color": "rgba(255, 152, 0, 0.9)" }],
+                              name: [{ 
+                                "font-size": "0.7em",
+                                "color": "rgba(255, 152, 0, 0.9)",
+                                "padding-top": "4px"
+                              }]
+                            },
+                            show_name: true,
+                            tap_action: {
+                              action: "none"
+                            }
+                          };
+                        } else {
+                          buttonConfig = {
+                            type: "custom:button-card",
+                            template: icon
+                          };
+                        }
+                      }
+
+                      const key = icon;
+                      if (addedItems.has(key)) return;
+
+                      addedItems.add(key);
+                      buttonList.push(buttonConfig);
+                    }
+
+                    if (menuActive) {
+                      const reversedMenuItems = [...menuItems].reverse();
+                      reversedMenuItems.forEach(item => {
+                        if (item !== "menu") {
+                          if (item.includes(':')) {
+                            addIconToList(item, true);
+                          } else {
+                            addIconToList(item, false);
+                          }
+                        }
+                      });
+                    }
+
+                    statusIcons.forEach(icon => {
+                      if (icon !== "menu") {
+                        if (icon.includes(':')) {
+                          addIconToList(icon, true);
+                        } else {
+                          addIconToList(icon, false);
+                        }
+                      }
+                    });
+
+                    if (hass.states[vaEntity].attributes.menu_config === "menu_enabled_button_visible" &&
+                        !addedItems.has("menu")) {
+                      buttonList.push({
+                        type: "custom:button-card",
+                        template: "menu"
+                      });
+                    }
+                  } catch (e) {
+                  }
+
+                  return buttonList;
+                }]]]
+  status_icons_overlay:
+    template:
+      - variable_template
+      - responsive_base
+      - status_icons_content
+    show_state: false
+    show_icon: false
+    show_name: false
+    triggers_update: all
+    styles:
+      card: null
+      custom_fields:
+        status:
+          - position: fixed
+          - top: |-
+              [[[
+                try {
+                  const screenMode = hass.states[variables.var_assistsat_entity]?.attributes?.screen_mode;
+                  if (screenMode === 'no_hide' || screenMode === 'hide_sidebar') {
+                    return 'calc(0vh + var(--header-height))';
+                  }
+                  return '0vh';
+                } catch {
+                  return '0vh';
+                }
+              ]]]
+          - right: 0vw
+          - z-index: 4
+  icon_template:
+    template: variable_template
+    color_type: card
+    show_name: false
+    size: 90%
+    padding: 0px
+    styles:
+      card:
+        - background-color: transparent
+        - border-width: 0px
+        - aspect-ratio: 1 / 1
+      icon:
+        - display: grid
+        - color: white
+  dynamic_view_item:
+    template: icon_template
+    icon: |-
+      [[[
+        const parts = variables.menu_item.split('|');
+        const icon = parts.length > 1 ? parts[1] : 'view-dashboard';
+        return `mdi:${icon}`;
+      ]]]
+    tap_action:
+      action: call-service
+      service: view_assist.navigate
+      service_data:
+        device: '[[[ return variables.entity_id; ]]]'
+        path: |-
+          [[[
+            const parts = variables.menu_item.split('|');
+            const typeAndTarget = parts[0];
+            const target = typeAndTarget.split(':')[1];
+            const base = variables.var_dashboard || '/view-assist';
+            return target.startsWith('/') ? target : `${base}/${target}`;
+          ]]]
+  dynamic_entity_item:
+    template: icon_template
+    state_display: none
+    entity: |-
+      [[[
+        const parts = variables.menu_item.split('|');
+        const typeAndTarget = parts[0];
+        return typeAndTarget.split(':')[1];
+      ]]]
+    icon: |-
+      [[[
+        const parts = variables.menu_item.split('|');
+        const typeAndTarget = parts[0];
+        const entityId = typeAndTarget.split(':')[1];
+        const iconOptions = parts.length > 1 ? parts[1].split(',') : ['help-circle'];
+
+        let icon = iconOptions[0];
+
+        if (iconOptions.length > 1 && hass.states[entityId]) {
+          const state = hass.states[entityId].state;
+
+          if (state === 'off' && iconOptions[1]) {
+            icon = iconOptions[1];
+          }
+        }
+
+        return `mdi:${icon}`;
+      ]]]
+    tap_action:
+      action: toggle
+      entity: |-
+        [[[
+          const parts = variables.menu_item.split('|');
+          const typeAndTarget = parts[0];
+          return typeAndTarget.split(':')[1];
+        ]]]
+    hold_action:
+      action: more-info
+      entity: |-
+        [[[
+          const parts = variables.menu_item.split('|');
+          const typeAndTarget = parts[0];
+          return typeAndTarget.split(':')[1];
+        ]]]
+  dynamic_service_item:
+    template: icon_template
+    icon: |-
+      [[[
+        const parts = variables.menu_item.split('|');
+        const icon = parts.length > 1 ? parts[1] : 'cog';
+        return `mdi:${icon}`;
+      ]]]
+    tap_action:
+      action: call-service
+      service: |-
+        [[[
+          const parts = variables.menu_item.split('|');
+          const typeAndTarget = parts[0];
+          return typeAndTarget.split(':')[1];
+        ]]]
+      service_data: {}
+  mediaplayer:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:volume-off
+    tap_action:
+      action: call-service
+      service: media_player.volume_mute
+      service_data:
+        entity_id: '[[[ return variables.var_mediaplayer_device ]]]'
+        is_volume_muted: false
+  mic:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:microphone-off
+    tap_action:
+      action: call-service
+      service: homeassistant.turn_off
+      service_data:
+        entity_id: '[[[ return variables.var_mic_switch ]]]'
+  hold:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:blank
+    tap_action:
+      action: call-service
+      service: view_assist.set_state
+      service_data:
+        mode: normal
+        entity_id: '[[[ return variables.var_assistsat_entity ]]]'
+  cycle:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:sync
+    tap_action:
+      action: call-service
+      service: view_assist.set_state
+      service_data:
+        mode: normal
+        entity_id: '[[[ return variables.var_assistsat_entity ]]]'
+  dnd:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:minus-circle
+    tap_action:
+      action: call-service
+      service: view_assist.set_state
+      service_data:
+        do_not_disturb: false
+        entity_id: '[[[ return variables.var_assistsat_entity ]]]'
+  weather:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:weather-sunny
+    tap_action:
+      action: call-service
+      service: view_assist.navigate
+      service_data:
+        device: '[[[ return variables.var_assistsat_entity ]]]'
+        path: '[[[ return `${variables.var_dashboard}/weather` ]]]'
+  home:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:home
+    tap_action:
+      action: call-service
+      service: view_assist.navigate
+      service_data:
+        device: '[[[ return variables.var_assistsat_entity ]]]'
+        path: home
+  menu:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:menu
+    tap_action:
+      action: call-service
+      service: view_assist.toggle_menu
+      service_data:
+        entity_id: '[[[ return variables.var_assistsat_entity ]]]'
+        show: >-
+          [[[ return
+          !states[variables.var_assistsat_entity].attributes.menu_active ]]]
+    hold_action:
+      action: call-service
+      service: view_assist.set_state
+      service_data:
+        entity_id: '[[[ return variables.var_assistsat_entity ]]]'
+        mode: hold
+  camera:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:cctv
+    tap_action:
+      action: call-service
+      service: view_assist.navigate
+      service_data:
+        device: '[[[ return variables.var_assistsat_entity ]]]'
+        path: '[[[ return `${variables.var_dashboard}/camera` ]]]'
+  music:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:music
+    tap_action:
+      action: call-service
+      service: view_assist.navigate
+      service_data:
+        device: '[[[ return variables.var_assistsat_entity ]]]'
+        path: '[[[ return `${variables.var_dashboard}/music` ]]]'
+  wake:
+    type: custom:button-card
+    template: icon_template
+    icon: mdi:button-pointer
+    tap_action:
+      action: call-service
+      service: button.press
+      service_data:
+        entity_id: '[[[ return variables.var_wake_switch ]]]'
+views:
+  - type: panel
+    title: Clock
+    path: clock
+    cards:
+      - type: custom:button-card
+        variables:
+          clockcardversion: 1.5.1
+          var_background: >-
+            [[[ try {if (hass.states[variables.var_assistsat_entity] && 
+            hass.states[variables.var_assistsat_entity].attributes.mode ===
+            "night") return ""; else return
+            hass.states[variables.var_assistsat_entity] ? 
+            hass.states[variables.var_assistsat_entity].attributes.background :
+            ""} catch {return ""}]]]
+          var_font_color: >-
+            [[[ try {if (hass.states[variables.var_assistsat_entity] && 
+            hass.states[variables.var_assistsat_entity].attributes.mode ===
+            "night") return "red"; else return "white";} catch {return "white";}
+            ]]]
+          var_font_color_night: >-
+            [[[ try {if (hass.states[variables.var_assistsat_entity] && 
+            hass.states[variables.var_assistsat_entity].attributes.mode ===
+            "night") return "transparent"; else return "white";} catch {return
+            "white";} ]]]
+        template:
+          - variable_template
+          - responsive_base
+          - body_template
+        styles:
+          grid:
+            - grid-template-areas: |
+                "title status"
+                "time time"
+                "date date"
+            - grid-template-rows: |-
+                [[[
+                  if (window.viewAssistResponsive && window.viewAssistResponsive.orientation === "portrait") {
+                    return "15vh 35vh 15vh";
+                  } else {
+                    return "15vh 50vh 15vh";
+                  }
+                ]]]
+            - grid-template-columns: 1fr 1fr
+          card:
+            - background: >-
+                [[[ return `center / cover no-repeat
+                url(${variables.var_background})` ]]]
+            - background-size: cover
+            - background-color: black
+            - position: relative
+          custom_fields:
+            title:
+              - display: grid
+              - color: '[[[ return variables.var_font_color_night ]]]'
+            time:
+              - display: grid
+              - justify-self: center
+              - align-self: center
+              - z-index: 1
+              - font-size: |-
+                  [[[
+                    if (window.viewAssistResponsive && window.viewAssistResponsive.orientation === "portrait") {
+                      return "25vh";
+                    } else {
+                      return "55vh";
+                    }
+                  ]]]
+              - font-weight: bold
+              - opacity: >-
+                  [[[ try {if (hass.states[variables.var_assistsat_entity] && 
+                  hass.states[variables.var_assistsat_entity].attributes.mode
+                  === "night") return "35%"; else return "100%";} catch {return
+                  "100%";} ]]] 
+              - color: '[[[ return variables.var_font_color ]]]'
+              - padding-top: 0
+              - margin-top: 0
+            date:
+              - display: grid
+              - justify-self: center
+              - align-self: center
+              - z-index: 1
+              - font-size: |-
+                  [[[
+                    if (window.viewAssistResponsive && window.viewAssistResponsive.orientation === "portrait") {
+                      return "8vh";
+                    } else {
+                      return "15vh";
+                    }
+                  ]]]
+              - width: max-content
+              - color: '[[[ return variables.var_font_color_night ]]]'
+            night:
+              - position: absolute
+              - top: 0
+              - min-height: 100%
+              - width: 100%
+              - overflow: hidden
+              - display: >-
+                  [[[ try {if (hass.states[variables.var_assistsat_entity] &&
+                  hass.states[variables.var_assistsat_entity].attributes.mode
+                  === "night") return "block"; else return "none";} catch {
+                  return  "none"}
+                   ]]]
+              - z-index: 2
+            shader:
+              - position: absolute
+              - top: 0
+              - height: 100%
+              - width: 100%
+              - background-color: rgba(0,0,0,0.15)
+        custom_fields:
+          title:
+            card:
+              type: custom:button-card
+              icon: '[[[ return variables.var_weather_icon ]]]'
+              name: '[[[ return variables.var_weather_temperature ]]]'
+              template: null
+              tap_action:
+                action: call-service
+                service: view_assist.navigate
+                service_data:
+                  device: '[[[ return variables.var_assistsat_entity ]]]'
+                  path: '[[[ return `${variables.var_dashboard}/weather` ]]]'
+              styles:
+                card:
+                  - background-color: transparent
+                  - border-width: 0px
+                  - width: 100%
+                  - top: -5%
+                  - left: 5%
+                grid:
+                  - grid-template-areas: '"i n"'
+                name:
+                  - font-size: |-
+                      [[[
+                        if (window.viewAssistResponsive && window.viewAssistResponsive.orientation === "portrait") {
+                          return "10vh";
+                        } else {
+                          return "15vh";
+                        }
+                      ]]]
+                  - color: '[[[ return variables.var_font_color_night ]]]'
+                icon:
+                  - width: |-
+                      [[[
+                        if (window.viewAssistResponsive && window.viewAssistResponsive.orientation === "portrait") {
+                          return "10vh";
+                        } else {
+                          return "13vh";
+                        }
+                      ]]]
+                  - color: '[[[ return variables.var_font_color_night ]]]'
+          time: '[[[ return variables.var_current_time ]]]'
+          date: '[[[ return variables.var_date_short ]]]'
+          night: ''
+          shader: ''
+  - type: panel
+    title: Alert
+    path: alert
+    cards:
+      - type: custom:button-card
+        variables:
+          alertcardversion: 1.0.0
+          var_icon: >-
+            [[[ try {return
+            hass.states[variables.var_assistsat_entity].attributes.alert_data['icon']}
+            catch { return  "mdi:cancel"}]]]  
+          var_header: >-
+            [[[ try {return
+            hass.states[variables.var_assistsat_entity].attributes.alert_data['header']}
+            catch { return  "Undefined"}]]]
+          var_line1: >-
+            [[[ try {return
+            hass.states[variables.var_assistsat_entity].attributes.alert_data['line1']}
+            catch { return  "Something went wrong"}]]]
+          var_line2: >-
+            [[[ try {return
+            hass.states[variables.var_assistsat_entity].attributes.alert_data['line2']}
+            catch { return  "Check your settings"}]]]        
+        template:
+          - variable_template
+          - body_template
+        styles:
+          grid:
+            - grid-template-areas: |
+                "title status"  
+                "alert alert"
+                "assist assist"       
+            - grid-template-columns: 1.5fr 1.5fr
+            - grid-template-rows: min-content max-content
+          card:
+            - background-color: '#059bf1'
+            - background-size: cover
+          custom_fields:
+            title:
+              - font-size: 6vh
+              - font-family: Anton
+            status:
+              - font-size: 5vh
+              - color: black
+              - icon:
+                  - color: black
+                  - height: 90%
+            alert:
+              - align-self: center
+              - justify-self: center
+              - position: absolute
+              - z-index: 2
+              - width: 90%
+        custom_fields:
+          alert:
+            card:
+              type: custom:button-card
+              custom_fields:
+                header: '[[[ return variables.var_header ]]]'
+                line1: '[[[ return variables.var_line1 ]]]'
+                line2: '[[[ return variables.var_line2 ]]]'
+                icon: >
+                  [[[ return `<ha-icon icon="${variables.var_icon}"></ha-icon>`;
+                  ]]]
+              show_icon: false
+              show_name: false
+              styles:
+                grid:
+                  - grid-template-areas: |
+                      "icon header" 
+                      "icon line1"
+                      "icon line2"
+                  - grid-template-columns: .5fr 1fr
+                  - grid-template-rows: max-content max-content max-content
+                card:
+                  - justify-content: center
+                  - align-items: center
+                  - padding: 2%
+                  - border-radius: 1vw
+                  - background-color: '#059bf1'
+                  - background-size: cover
+                  - border: none
+                custom_fields:
+                  icon:
+                    - align-self: center
+                    - justify-self: end
+                    - z-index: 2
+                    - border-right: 2px solid black
+                    - padding-right: 5%
+                    - color: black
+                  header:
+                    - font-size: 7vh
+                    - color: black
+                    - justify-self: start
+                    - padding-left: 10%
+                    - font-weight: 500
+                    - padding-top: 2em
+                  line1:
+                    - font-size: 7vh
+                    - color: black
+                    - justify-self: start
+                    - padding-left: 10%
+                    - padding-left: 10%
+                  line2:
+                    - font-size: 7vh
+                    - color: black
+                    - justify-self: start
+                    - padding-left: 10%
+                    - padding-bottom: 2em
+  - type: panel
+    title: Calendar
+    path: calendar
+    cards:
+      - type: custom:button-card
+        variables:
+          calendarcardversion: 1.0.0
+          var_list: >-
+            [[[ try {return
+            hass.states[variables.var_assistsat_entity].attributes.calendar_list}
+            catch { return  ""}]]]
+        template:
+          - variable_template
+          - body_template
+        styles:
+          card:
+            - background: >-
+                [[[ return `center / cover no-repeat
+                url(${variables.background})` ]]]
+            - background-size: cover
+          custom_fields:
+            message:
+              - position: absolute
+              - align-self: left
+              - width: 100%
+        custom_fields:
+          message:
+            card:
+              entities: '[[[ return variables.var_list ]]]'
+              days_to_show: 2
+              day_spacing: 20px
+              event_spacing: 8px
+              today_indicator: mdi:star
+              today_indicator_size: 12px
+              weekday_font_size: 28px
+              day_font_size: 52px
+              month_font_size: 24px
+              event_font_size: 28px
+              time_font_size: 24px
+              time_icon_size: 24px
+              location_font_size: 24px
+              location_icon_size: 24px
+              type: custom:calendar-card-pro
+              card_mod:
+                style: |
+                  ha-card {
+                    text-align: left;
+                  }
+  - type: panel
+    title: Intent
+    path: intent
+    cards:
+      - type: custom:button-card
+        variables:
+          intentcardversion: 1.0.1
+        template:
+          - variable_template
+          - body_template
+        styles:
+          card:
+            - border-width: 0px
+            - border-radius: 0px
+          custom_fields:
+            message:
+              - position: absolute
+              - width: 100%
+              - align-self: middle
+              - justify-self: center
+        custom_fields:
+          title: ''
+          message:
+            card:
+              type: custom:layout-card
+              layout_type: custom:masonry-layout
+              layout:
+                max_cols: 3
+              cards: >-
+                [[[ try {return
+                hass.states[variables.var_assistsat_entity].attributes.intent_entities}
+                catch { return ""}]]]
+  - type: panel
+    title: Weather
+    path: weather
+    cards:
+      - type: custom:button-card
+        variables:
+          var_weather_entity: |-
+            [[[
+              var assistbid = localStorage.getItem("view_assist_sensor") ?? variables.default_satellite;
+              var weather_entity = hass.states[assistbid].attributes.weather_entity;
+              return `${weather_entity}`
+            ]]]    
+          var_forecast_type: daily
+          weathercardversion: 1.1.0
+        template:
+          - variable_template
+          - body_template
+        styles:
+          grid:
+            - grid-template-areas: |
+                "title status"  
+                "message message"
+                "assist assist"        
+            - grid-template-rows: min-content max-content min-content
+            - grid-template-columns: 1fr 1fr
+          card:
+            - background-color: '#059bf1'
+            - border-width: 0px
+            - border-radius: 0px
+          custom_fields:
+            message:
+              - position: relative
+              - height: 100vdh
+              - text-align: start
+              - text-wrap: wrap
+              - justify-content: center
+              - align-self: center
+              - padding: -10%
+        custom_fields:
+          title: ''
+          message:
+            card:
+              type: weather-forecast
+              entity: '[[[ return variables.var_weather_entity ]]]'
+              forecast_type: '[[[ return variables.var_forecast_type ]]]'
+              card_mod:
+                style:
+                  .: |
+                    ha-card { background: #059bf9}
+                    ha-card.type-weather-forecast {
+                      justify-content: start !important;
+                    }
+                    ha-card.type-weather-forecast>div.content {
+                      div {
+                        padding-right: 10px;
+                      }
+                    }
+                    ha-card.type-weather-forecast>div.content {
+                      display: flex;​
+                    }
+                  ha-card.type-weather-forecast>div.content: |
+                    svg {
+                      width: 15vw !important;
+                      height: 15vh !important;
+                      flex: unset !important;
+                    }
+                  ha-card.type-weather-forecast>div.forecast: |
+                    div {
+                      padding-top: 2vh;
+                      font-size: 6vh;
+                      color: white !important;
+                      justify-content: space-evenly !important;
+                    }
+                  ha-card.type-weather-forecast>div.content>div.info:
+                    .: |
+                      div.name-state {
+                        display: flex;
+                        flex-direction: column;
+                      }
+                    div.name-state:
+                      .: |
+                        div.state {
+                          font-size: 10vh !important;
+                        }
+                        div.name {
+                          display: none;
+                          max-height: 0px !important;
+                        }
+                    div.temp-attribute: |
+                      .temp {
+                        font-size: 8vh !important;
+                        padding-bottom: 0px;
+                      }
+                      .attribute {
+                        font-size: 5vh !important;
+                      }  
+                      .temp span {
+                        font-size: 7vh !important;
+                        margin-left: -1vh;
+                      }
+                      .templow {
+                        padding-top: 0px;
+                        text-align: right;
+                      }
+  - type: panel
+    title: Webpage
+    path: webpage
+    cards:
+      - type: custom:button-card
+        variables:
+          webpageversion: 1.1.1
+          var_url: >-
+            [[[ try {return
+            hass.states[variables.var_assistsat_entity].attributes.url} catch {
+            return "https://www.home-assistant.io/"}]]]
+        template:
+          - variable_template
+          - body_template
+        styles:
+          card:
+            - background-color: '#00000'
+            - border-width: 0px
+            - border-radius: 0px
+          custom_fields:
+            message:
+              - font-size: '[[[ return variables.var_font_size ]]]'
+              - align-self: center
+              - justify-self: center
+              - height: 100%
+              - width: 100%
+              - position: absolute
+              - justify-content: center
+              - text-align: start
+        custom_fields:
+          message:
+            card:
+              type: iframe
+              url: '[[[ return variables.var_url ]]]'
+              aspect_ratio: 50%
+  - type: panel
+    path: screen-saver
+    title: Screen Saver
+    cards:
+      - type: custom:button-card
+        styles:
+          card:
+            - height: 100vh
+            - width: 100vw
+            - margin: 0px
+            - padding: 0px
+            - border-radius: 0px
+            - background-color: '#000000'
+          custom_fields:
+            webpage:
+              - position: absolute
+              - top: 0
+              - left: 0
+              - width: 100%
+              - height: 100%
+              - pointer-events: none
+        custom_fields:
+          webpage: |
+            <iframe 
+              src="/local/bing.html" 
+              style="width: 100%; height: 100%; border: none; pointer-events: none;" 
+              scrolling="no">
+            </iframe>
+        tap_action:
+          action: navigate
+          navigation_path: /view-assist/radio
+        hold_action:
+          action: navigate
+          navigation_path: /view-assist/portal
+  - type: panel
+    path: portal
+    title: Portal
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:button-card
+            color_type: blank-card
+            styles:
+              card:
+                - height: 60px
+          - square: false
+            type: grid
+            columns: 3
+            cards:
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: url
+                  url_path: app://com.android.settings
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: '#0288D1'
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon" "app_name"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                    app_name:
+                      - font-size: 1.8rem
+                      - font-weight: bold
+                      - color: '#FFFFFF'
+                      - text-align: center
+                      - padding-bottom: 6px
+                custom_fields:
+                  svg_icon: >-
+                    <ha-icon icon="mdi:cog" style="max-width: 100%; max-height:
+                    100%; --mdc-icon-size: 6rem; color: #FFFFFF;"></ha-icon>
+                  app_name: Settings
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: url
+                  url_path: app://com.whatsapp
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: '#25D366'
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon" "app_name"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                    app_name:
+                      - font-size: 1.8rem
+                      - font-weight: bold
+                      - color: '#FFFFFF'
+                      - text-align: center
+                      - padding-bottom: 6px
+                custom_fields:
+                  svg_icon: >-
+                    <ha-icon icon=mdi:whatsapp style="max-width: 100%;
+                    max-height: 100%; --mdc-icon-size: 6rem; color:
+                    #FFFFFF;"></ha-icon>
+                  app_name: WhatsApp
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: url
+                  url_path: app://org.chromium.chrome
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: '#800080'
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon" "app_name"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                    app_name:
+                      - font-size: 1.8rem
+                      - font-weight: bold
+                      - color: '#FFFFFF'
+                      - text-align: center
+                      - padding-bottom: 6px
+                custom_fields:
+                  svg_icon: >-
+                    <ha-icon icon=mdi:google-chrome style="max-width: 100%;
+                    max-height: 100%; --mdc-icon-size: 6rem; color:
+                    #FFFFFF;"></ha-icon>
+                  app_name: Chrome
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: url
+                  url_path: app://org.smarttube.stable
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: '#CC0000'
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon" "app_name"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                    app_name:
+                      - font-size: 1.8rem
+                      - font-weight: bold
+                      - color: '#FFFFFF'
+                      - text-align: center
+                      - padding-bottom: 6px
+                custom_fields:
+                  svg_icon: >-
+                    <ha-icon icon=mdi:youtube style="max-width: 100%;
+                    max-height: 100%; --mdc-icon-size: 6rem; color:
+                    #FFFFFF;"></ha-icon>
+                  app_name: SmartTube
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: url
+                  url_path: app://com.speedsoftware.rootexplorer
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: '#FFD700'
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon" "app_name"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                    app_name:
+                      - font-size: 1.8rem
+                      - font-weight: bold
+                      - color: '#FFFFFF'
+                      - text-align: center
+                      - padding-bottom: 6px
+                custom_fields:
+                  svg_icon: >-
+                    <ha-icon icon=mdi:file-cabinet style="max-width: 100%;
+                    max-height: 100%; --mdc-icon-size: 6rem; color:
+                    #FFFFFF;"></ha-icon>
+                  app_name: File Explorer
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: url
+                  url_path: app://com.facebook.alohaapps.settings
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: '#653219'
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon" "app_name"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                    app_name:
+                      - font-size: 1.8rem
+                      - font-weight: bold
+                      - color: '#FFFFFF'
+                      - text-align: center
+                      - padding-bottom: 6px
+                custom_fields:
+                  svg_icon: >-
+                    <ha-icon icon=mdi:cog style="max-width: 100%; max-height:
+                    100%; --mdc-icon-size: 6rem; color: #FFFFFF;"></ha-icon>
+                  app_name: Portal Settings
+  - type: panel
+    path: music
+    title: Music
+    cards:
+      - type: custom:button-card
+        show_name: false
+        show_icon: false
+        show_state: false
+        triggers_update: all
+        template:
+          - variable_template
+          - body_template
+        custom_fields:
+          background: |
+            [[[
+              const player = hass.states[variables.var_musicplayer_device];
+              const art = player?.attributes?.entity_picture_local || player?.attributes?.entity_picture || '';
+              
+              return art ? `
+                <div style="position:absolute; top:0; left:0; width:100vw; height:85vh; overflow:hidden; z-index:0; background-color:#111;">
+                  <img src="${art}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; filter:blur(60px) saturate(2.2) brightness(0.65); transform:scale(1.3);" />
+                </div>
+              ` : '<div style="position:absolute; top:0; left:0; width:100vw; height:85vh; background:#222; z-index:0;"></div>';
+            ]]]
+          main_info: |
+            [[[
+              const player = hass.states[variables.var_musicplayer_device];
+              if (!player) return `<div style="color:white;padding:40px;font-size:20px;font-family:sans-serif;z-index:1;position:relative;">Player not found</div>`;
+
+              const title = player.attributes.media_title || 'Nothing Playing';
+              const artist = player.attributes.media_artist || player.attributes.media_album_artist || 'Unknown Artist';
+              const album = player.attributes.media_album_name || artist;
+              const art = player.attributes.entity_picture_local || player.attributes.entity_picture || '';
+
+              // Check if the title length is greater than 13 characters
+              const titleClass = title.length > 13 ? 'scrolling-title' : 'static-title';
+
+              return `
+                <style>
+                  @keyframes marquee-start-left {
+                    0% { transform: translateX(0%); }
+                    100% { transform: translateX(-100%); }
+                  }
+                  .scrolling-title {
+                    display: inline-block;
+                    white-space: nowrap;
+                    will-change: transform;
+                    animation: marquee-start-left 12s linear infinite;
+                    animation-delay: 1.5s;
+                  }
+                  .static-title {
+                    display: inline-block;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 100%;
+                  }
+                </style>
+                <div style="position:relative;z-index:1;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;width:100%;height:100%;color:white;padding:0 6vw;box-sizing:border-box;gap:5vw;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                  ${art ? `<img src="${art}" style="width:50vh;height:50vh;max-width:35vw;max-height:35vw;object-fit:cover;border-radius:12px;border: 1.5px solid rgba(255,255,255,0.25);box-shadow:0 15px 40px rgba(0,0,0,0.5);flex-shrink:0;" />` : `<div style="width:50vh;height:50vh;max-width:35vw;max-height:35vw;border-radius:12px;border: 1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;"><ha-icon icon="mdi:music" style="--mdc-icon-size: 60px; opacity: 0.4; color: white;"></ha-icon></div>`}
+                  
+                  <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-start;width:100%;max-width:48vw;text-align:left;">
+                    <!-- Album Title -->
+                    <div style="font-size:4.5vh;opacity:0.75;margin-bottom:0.8vh;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">${album}</div>
+                    
+                    <!-- Scrolling/Static Title Container -->
+                    <div style="width:100%;overflow:hidden;white-space:nowrap;margin-bottom:1.2vh;">
+                      <div class="${titleClass}" style="font-size:9.5vh;font-weight:700;line-height:1.1;letter-spacing:-0.03em;text-shadow: 0 4px 12px rgba(0,0,0,0.25);">${title}</div>
+                    </div>
+                    
+                    <!-- Artist Name -->
+                    <div style="font-size:7.0vh;opacity:0.95;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">${artist}</div>
+                  </div>
+                </div>
+              `;
+            ]]]
+          progress: |
+            [[[
+              const player = hass.states[variables.var_musicplayer_device];
+              if (!player || player.state === 'unavailable') return '';
+              
+              const position = parseFloat(player.attributes.media_position || 0);
+              const duration = parseFloat(player.attributes.media_duration || 0);
+              const state = player.state;
+              
+              if (duration <= 0) return '';
+
+              let currentPos = position;
+              if (state === 'playing' && player.attributes.media_position_updated_at) {
+                const updatedAt = new Date(player.attributes.media_position_updated_at).getTime() / 1000;
+                currentPos += (Date.now() / 1000 - updatedAt);
+              }
+              
+              const startRatio = Math.min(1, Math.max(0, currentPos / duration));
+              const remainingTime = duration - currentPos;
+
+              const animId = 'anim_' + variables.var_musicplayer_device.replace(/[^a-zA-Z0-9]/g, '');
+
+              return `
+                <div style="width:100%; height:100%; background: rgba(255,255,255,0.1); position:relative; z-index:2; overflow:hidden;">
+                  <style>
+                    @keyframes ${animId} {
+                      from { transform: scaleX(${startRatio}); }
+                      to { transform: scaleX(1); }
+                    }
+                  </style>
+                  <div style="
+                    width: 100%;
+                    height: 100%; 
+                    background: #1db954; 
+                    transform-origin: left center;
+                    transform: scaleX(${startRatio});
+                    ${state === 'playing' && remainingTime > 0 ? `animation: ${animId} ${remainingTime}s linear forwards;` : ''}
+                    will-change: transform;
+                  "></div>
+                </div>
+              `;
+            ]]]
+          down:
+            card:
+              type: custom:button-card
+              show_name: false
+              icon: mdi:menu-down
+              styles:
+                card:
+                  - background: transparent
+                  - border: none
+                  - box-shadow: none
+                icon:
+                  - color: white
+                  - width: 55px
+                  - height: 55px
+          shuffle:
+            card:
+              type: custom:button-card
+              entity: '[[[ return variables.var_musicplayer_device ]]]'
+              show_name: false
+              icon: mdi:shuffle-variant
+              styles:
+                card:
+                  - background: transparent
+                  - border: none
+                  - box-shadow: none
+                icon:
+                  - color: >-
+                      [[[ return entity?.attributes?.shuffle ? '#1db954' :
+                      'rgba(255,255,255,0.65)' ]]]
+                  - width: 38px
+                  - height: 38px
+              tap_action:
+                action: call-service
+                service: media_player.shuffle_set
+                service_data:
+                  entity_id: '[[[ return variables.var_musicplayer_device ]]]'
+                  shuffle: '[[[ return !entity?.attributes?.shuffle ]]]'
+          prev:
+            card:
+              type: custom:button-card
+              show_name: false
+              icon: mdi:skip-previous
+              styles:
+                card:
+                  - background: transparent
+                  - border: none
+                  - box-shadow: none
+                icon:
+                  - color: white
+                  - width: 48px
+                  - height: 48px
+              tap_action:
+                action: call-service
+                service: media_player.media_previous_track
+                service_data:
+                  entity_id: '[[[ return variables.var_musicplayer_device ]]]'
+          play:
+            card:
+              type: custom:button-card
+              entity: '[[[ return variables.var_musicplayer_device ]]]'
+              show_name: false
+              show_state: false
+              icon: mdi:play
+              state:
+                - value: playing
+                  icon: mdi:pause
+              styles:
+                card:
+                  - background: transparent
+                  - border: none
+                  - box-shadow: none
+                icon:
+                  - color: white
+                  - width: 64px
+                  - height: 64px
+              tap_action:
+                action: call-service
+                service: media_player.media_play_pause
+                service_data:
+                  entity_id: '[[[ return variables.var_musicplayer_device ]]]'
+          next:
+            card:
+              type: custom:button-card
+              show_name: false
+              icon: mdi:skip-next
+              styles:
+                card:
+                  - background: transparent
+                  - border: none
+                  - box-shadow: none
+                icon:
+                  - color: white
+                  - width: 48px
+                  - height: 48px
+              tap_action:
+                action: call-service
+                service: media_player.media_next_track
+                service_data:
+                  entity_id: '[[[ return variables.var_musicplayer_device ]]]'
+          repeat:
+            card:
+              type: custom:button-card
+              entity: '[[[ return variables.var_musicplayer_device ]]]'
+              show_name: false
+              icon: mdi:repeat
+              styles:
+                card:
+                  - background: transparent
+                  - border: none
+                  - box-shadow: none
+                icon:
+                  - color: >-
+                      [[[ return (entity?.attributes?.repeat &&
+                      entity?.attributes?.repeat !== 'off') ? '#1db954' :
+                      'rgba(255,255,255,0.65)' ]]]
+                  - width: 38px
+                  - height: 38px
+              tap_action:
+                action: call-service
+                service: media_player.repeat_set
+                service_data:
+                  entity_id: '[[[ return variables.var_musicplayer_device ]]]'
+                  repeat: >-
+                    [[[ return (entity?.attributes?.repeat === 'off' ||
+                    !entity?.attributes?.repeat) ? 'all' : 'off' ]]]
+          empty: |
+            [[[ return `` ]]]
+        styles:
+          card:
+            - background-color: '#0a0a0a'
+            - height: 100vh
+            - width: 100vw
+            - padding: 0
+            - margin: 0
+            - overflow: hidden
+            - position: relative
+          grid:
+            - grid-template-areas: >
+                "main_info main_info main_info main_info main_info main_info
+                main_info"
+
+                "progress progress progress progress progress progress progress"
+
+                "down shuffle prev play next repeat empty"
+            - grid-template-rows: 85vh 6px 14vh
+            - grid-template-columns: 15vw 14vw 14vw 14vw 14vw 14vw 11vw
+          custom_fields:
+            background:
+              - position: absolute
+              - top: 0
+              - left: 0
+              - width: 100%
+              - height: 100%
+              - z-index: 0
+              - pointer-events: none
+            main_info:
+              - width: 100%
+              - height: 100%
+              - z-index: 1
+              - pointer-events: none
+            progress:
+              - width: 100%
+              - height: 100%
+              - z-index: 2
+              - pointer-events: none
+            down:
+              - width: 100%
+              - height: 100%
+              - display: flex
+              - align-items: center
+              - justify-content: center
+              - z-index: 3
+            shuffle:
+              - width: 100%
+              - height: 100%
+              - display: flex
+              - align-items: center
+              - justify-content: center
+              - z-index: 3
+            prev:
+              - width: 100%
+              - height: 100%
+              - display: flex
+              - align-items: center
+              - justify-content: center
+              - z-index: 3
+            play:
+              - width: 100%
+              - height: 100%
+              - display: flex
+              - align-items: center
+              - justify-content: center
+              - z-index: 3
+            next:
+              - width: 100%
+              - height: 100%
+              - display: flex
+              - align-items: center
+              - justify-content: center
+              - z-index: 3
+            repeat:
+              - width: 100%
+              - height: 100%
+              - display: flex
+              - align-items: center
+              - justify-content: center
+              - z-index: 3
+            empty:
+              - width: 100%
+              - height: 100%
+  - type: panel
+    path: todo
+    title: TODO
+    cards:
+      - type: custom:button-card
+        entity: sensor.shopping_list_scene
+        show_name: false
+        show_icon: false
+        show_state: false
+        tap_action:
+          action: none
+        styles:
+          card:
+            - padding: 28px
+            - background-color: transparent;
+            - border-radius: 16px
+          grid:
+            - grid-template-areas: '"list_container"'
+            - grid-template-columns: 1fr
+            - justify-items: start
+            - align-items: start
+          custom_fields:
+            list_container:
+              - width: 100%
+              - text-align: left
+              - justify-self: start
+        custom_fields:
+          list_container: |
+            [[[
+              return (() => {
+                // Fetch raw attribute and current state (item count) safely from the HA entity
+                const rawList = entity.attributes.text_content;
+                const itemCount = entity.state || 0;
+                
+                // Build the dynamic header title with proper singular/plural grammar
+                const itemLabel = itemCount == 1 ? 'item' : 'items';
+                let outputHtml = '<div style="font-size: 3.6rem; font-weight: 900; color: var(--primary-text-color); margin-bottom: 28px; text-align: left;">';
+                outputHtml += '🛒 Shopping List (' + itemCount + ' ' + itemLabel + ')';
+                outputHtml += '</div>';
+                
+                // Handle empty list state gracefully
+                if (!rawList || rawList.trim() === '') {
+                  outputHtml += '<div style="font-size: 2.8rem; font-weight: bold; color: var(--secondary-text-color); text-align: left;">🎉 Your shopping list is empty!</div>';
+                  return outputHtml;
+                }
+
+                // Parse comma-separated string, trim whitespace, drop empty elements, and apply natural locale A-Z sorting
+                const items = rawList
+                  .split(',')
+                  .map(i => i.trim())
+                  .filter(i => i.length > 0)
+                  .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
+
+                // Divide sorted array length evenly into 3 columns
+                const perCol = Math.ceil(items.length / 3);
+                const col1 = items.slice(0, perCol);
+                const col2 = items.slice(perCol, perCol * 2);
+                const col3 = items.slice(perCol * 2);
+
+                // Helper function: Encapsulates each column with overflow/word-break protections
+                const renderColumn = (colItems) => {
+                  let colHtml = '<div style="flex: 1 1 0px; min-width: 0; overflow: hidden;">';
+                  colItems.forEach((item) => {
+                    colHtml += '<div style="font-size: 2.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 18px; color: var(--primary-text-color); text-align: left; overflow-wrap: anywhere; word-break: break-word; hyphens: auto;">';
+                    colHtml += item;
+                    colHtml += '</div>';
+                  });
+                  colHtml += '</div>';
+                  return colHtml;
+                };
+
+                // Render the 3-column Flexbox layout structure
+                outputHtml += '<div style="display: flex; gap: 24px; width: 100%; align-items: flex-start;">';
+                outputHtml += renderColumn(col1);
+                outputHtml += renderColumn(col2);
+                outputHtml += renderColumn(col3);
+                outputHtml += '</div>';
+
+                return outputHtml;
+              })();
+            ]]]
+  - type: panel
+    path: alarms
+    title: Alarms
+    cards:
+      - type: custom:button-card
+        entity: sensor.list_alarms
+        show_name: false
+        show_icon: false
+        show_state: false
+        tap_action:
+          action: none
+        styles:
+          card:
+            - background-color: transparent;
+            - padding: 28px
+            - border-radius: 16px
+          grid:
+            - grid-template-areas: '"list_container"'
+            - grid-template-columns: 1fr
+            - justify-items: start
+            - align-items: start
+          custom_fields:
+            list_container:
+              - width: 100%
+              - text-align: left
+              - justify-self: start
+        custom_fields:
+          list_container: |
+            [[[
+              return (() => {
+                // Fetch raw alarms array and current state count safely from HA entity
+                const rawAlarms = entity.attributes.alarms;
+                const alarmCount = parseInt(entity.state, 10) || 0;
+                
+                // Dynamic header title
+                const alarmLabel = alarmCount === 1 ? 'Alarm' : 'Alarms';
+                let outputHtml = '<div style="font-size: 3.6rem; font-weight: 900; color: var(--primary-text-color); margin-bottom: 24px; text-align: left;">';
+                outputHtml += '⏰ Active Alarms (' + alarmCount + ' ' + alarmLabel + ')';
+                outputHtml += '</div>';
+                
+                // Handle empty alarm list gracefully
+                if (!rawAlarms || !Array.isArray(rawAlarms) || rawAlarms.length === 0) {
+                  outputHtml += '<div style="font-size: 2.8rem; font-weight: bold; color: var(--secondary-text-color); text-align: left;">🎉 No active alarms set</div>';
+                  return outputHtml;
+                }
+
+                // Get current weekday name dynamically (e.g., "Thursday")
+                const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+
+                // Clone and sort the array: Time -> Reoccurring -> Persistant
+                const alarms = [...rawAlarms].sort((a, b) => {
+                  // 1. Sort by Time (HH:MM string comparison)
+                  const timeA = a.time || '00:00';
+                  const timeB = b.time || '00:00';
+                  const timeCompare = timeA.localeCompare(timeB);
+                  if (timeCompare !== 0) return timeCompare;
+
+                  // 2. Sort by Reoccurring status
+                  const recurA = a.Reoccurring || '';
+                  const recurB = b.Reoccurring || '';
+                  const recurCompare = recurA.localeCompare(recurB);
+                  if (recurCompare !== 0) return recurCompare;
+
+                  // 3. Sort by Persistant flag (true values first)
+                  const persistA = a.persistant ? 1 : 0;
+                  const persistB = b.persistant ? 1 : 0;
+                  return persistB - persistA;
+                });
+
+                // CSS Grid setup: Column 1 gets 55% width, Column 2 gets 45% width (left-aligned)
+                outputHtml += '<div style="display: grid; grid-template-columns: 55% 45%; row-gap: 16px; align-items: center; width: 100%;">';
+
+                // Map over sorted alarm objects and render elements into two grid cells
+                alarms.forEach((alarm) => {
+                  // Extract values safely with fallbacks
+                  const rawName = alarm['Friendly name'] || alarm.alarm_id || '';
+                  const name = rawName ? 'Alarm ' + rawName : 'Alarm';
+                  const time = alarm.time || '00:00';
+                  
+                  // Process recurring status: convert 'once' to 'Once <CurrentDay>'
+                  let reoccurring = alarm.Reoccurring || 'once';
+                  if (reoccurring.toLowerCase().trim() === 'once') {
+                    reoccurring = 'Once ' + currentDay;
+                  }
+
+                  const persistent = alarm.persistant ? '📌 ' : '';
+
+                  // COLUMN 1: Time + Friendly Name (Safe truncation for long names)
+                  outputHtml += '<div style="display: flex; align-items: center; gap: 16px; font-size: 2.6rem; line-height: 1.2; min-width: 0; overflow: hidden; text-align: left;">';
+                  outputHtml += '  <span style="font-weight: 800; color: var(--primary-text-color); flex-shrink: 0;">' + time + '</span>';
+                  outputHtml += '  <span style="font-weight: 600; color: var(--secondary-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + name + '</span>';
+                  outputHtml += '</div>';
+
+                  // COLUMN 2: Left-aligned status starting at the 55% grid mark
+                  outputHtml += '<div style="display: flex; align-items: center; gap: 12px; font-size: 2.2rem; font-weight: 500; color: var(--secondary-text-color); text-transform: capitalize; white-space: nowrap; justify-content: flex-start; text-align: left;">';
+                  outputHtml += '  <span>🔁 ' + reoccurring + '</span>';
+                  if (persistent) {
+                    outputHtml += '  <span style="font-size: 2.0rem;">' + persistent + '</span>';
+                  }
+                  outputHtml += '</div>';
+                });
+
+                outputHtml += '</div>';
+
+                return outputHtml;
+              })();
+            ]]]
+  - type: panel
+    path: radio
+    title: Radio
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:button-card
+            color_type: blank-card
+            styles:
+              card:
+                - height: 40px
+          - square: false
+            type: grid
+            columns: 3
+            cards:
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: perform-action
+                  perform_action: music_assistant.play_media
+                  target:
+                    entity_id: '[[[ return variables.var_musicplayer_device; ]]]'
+                  data:
+                    media_id: BBC Radio 1
+                    media_type: radio
+                    enqueue: play
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: |
+                        [[[
+                          let player = states[variables.var_musicplayer_device];
+                          if (player && player.attributes && player.attributes.media_title === 'BBC Radio 1' && player.state === 'playing') {
+                            return '#FFFF00';
+                          }
+                          return '#FFFFFF';
+                        ]]]
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                custom_fields:
+                  svg_icon: >-
+                    <img src="/local/bbc_radio_1.svg" style="height: 15.5rem;
+                    max-width: 100%; object-fit: contain;">
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: perform-action
+                  perform_action: music_assistant.play_media
+                  target:
+                    entity_id: '[[[ return variables.var_musicplayer_device; ]]]'
+                  data:
+                    media_id: BBC Radio 2
+                    media_type: radio
+                    enqueue: play
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: |
+                        [[[
+                          let player = states[variables.var_musicplayer_device];
+                          if (player && player.attributes && player.attributes.media_title === 'BBC Radio 2' && player.state === 'playing') {
+                            return '#FFFF00';
+                          }
+                          return '#FFFFFF';
+                        ]]]
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                custom_fields:
+                  svg_icon: >-
+                    <img src="/local/bbc_radio_2.svg" style="height: 15.5rem;
+                    max-width: 100%; object-fit: contain;">
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: perform-action
+                  perform_action: music_assistant.play_media
+                  target:
+                    entity_id: '[[[ return variables.var_musicplayer_device; ]]]'
+                  data:
+                    media_id: BBC Radio 3
+                    media_type: radio
+                    enqueue: play
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: |
+                        [[[
+                          let player = states[variables.var_musicplayer_device];
+                          if (player && player.attributes && player.attributes.media_title === 'BBC Radio 3' && player.state === 'playing') {
+                            return '#FFFF00';
+                          }
+                          return '#FFFFFF';
+                        ]]]
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                custom_fields:
+                  svg_icon: >-
+                    <img src="/local/bbc_radio_3.svg" style="height: 15.5rem;
+                    max-width: 100%; object-fit: contain;">
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: perform-action
+                  perform_action: music_assistant.play_media
+                  target:
+                    entity_id: '[[[ return variables.var_musicplayer_device; ]]]'
+                  data:
+                    media_id: BBC Radio 4
+                    media_type: radio
+                    enqueue: play
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: |
+                        [[[
+                          let player = states[variables.var_musicplayer_device];
+                          if (player && player.attributes && player.attributes.media_title === 'BBC Radio 4' && player.state === 'playing') {
+                            return '#FFFF00';
+                          }
+                          return '#FFFFFF';
+                        ]]]
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                custom_fields:
+                  svg_icon: >-
+                    <img src="/local/bbc_radio_4.svg" style="height: 15.5rem;
+                    max-width: 100%; object-fit: contain;">
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: perform-action
+                  perform_action: music_assistant.play_media
+                  target:
+                    entity_id: '[[[ return variables.var_musicplayer_device; ]]]'
+                  data:
+                    media_id: BBC Radio 5 Live
+                    media_type: radio
+                    enqueue: play
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: |
+                        [[[
+                          let player = states[variables.var_musicplayer_device];
+                          if (player && player.attributes && player.attributes.media_title === 'BBC Radio 5 Live' && player.state === 'playing') {
+                            return '#FFFF00';
+                          }
+                          return '#FFFFFF';
+                        ]]]
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                custom_fields:
+                  svg_icon: >-
+                    <img src="/local/bbc_radio_5.svg" style="height: 25.5rem;
+                    max-width: 100%; object-fit: contain;">
+              - type: custom:button-card
+                template: variable_template
+                show_name: false
+                show_state: false
+                show_icon: false
+                aspect_ratio: 4/3
+                tap_action:
+                  action: perform-action
+                  perform_action: music_assistant.play_media
+                  target:
+                    entity_id: '[[[ return variables.var_musicplayer_device; ]]]'
+                  data:
+                    media_id: BBC Radio 6
+                    media_type: radio
+                    enqueue: play
+                hold_action:
+                  action: navigate
+                  navigation_path: /view-assist/screen-saver
+                extra_styles: |
+                  ha-card:active {
+                    background-color: #FFFF00 !important;
+                    transform: scale(0.95);
+                    transition: background-color 0s, transform 0.05s !important;
+                  }
+                styles:
+                  card:
+                    - padding: 12px 8px
+                    - background-color: |
+                        [[[
+                          let player = states[variables.var_musicplayer_device];
+                          if (player && player.attributes && player.attributes.media_title === 'BBC Radio 6' && player.state === 'playing') {
+                            return '#FFFF00';
+                          }
+                          return '#FFFFFF';
+                        ]]]
+                    - transition: >-
+                        background-color 6s cubic-bezier(0, 1, 0.5, 1),
+                        transform 0.3s ease
+                    - box-shadow: none
+                    - border-radius: 10px
+                    - overflow: hidden
+                    - border: |-
+                        [[[
+                          return (entity && entity.state === 'on') 
+                            ? '3px solid var(--green-color, #4CAF50)' 
+                            : 'none';
+                        ]]]
+                  grid:
+                    - grid-template-areas: '"svg_icon"'
+                    - grid-template-rows: 1fr auto
+                    - justify-items: center
+                    - align-items: center
+                    - height: 100%
+                  custom_fields:
+                    svg_icon:
+                      - display: flex
+                      - justify-content: center
+                      - align-items: center
+                      - width: 100%
+                      - height: 100%
+                custom_fields:
+                  svg_icon: >-
+                    <img src="/local/bbc_radio_6.svg" style="height: 15.5rem;
+                    max-width: 100%; object-fit: contain;">
+  - type: sidebar
+    path: alarm-ringing
+    title: Alarm-ringing
+    cards:
+      - type: custom:button-card
+        template:
+          - variable_template
+          - body_template
+        styles:
+          card:
+            - background-color: '#00000'
+            - border-width: 0px
+            - border-radius: 0px
+          custom_fields:
+            message:
+              - align-self: center
+              - justify-self: center
+              - height: 100%
+              - width: 100%
+              - position: absolute
+              - justify-content: center
+              - text-align: start
+        custom_fields:
+          message:
+            card:
+              type: iframe
+              url: /local/ringing-alarm.html
+              aspect_ratio: 50%

@@ -1,0 +1,24 @@
+type: custom:button-card
+template:
+  - variable_template
+  - body_template
+styles:
+  card:
+    - background-color: '#00000'
+    - border-width: 0px
+    - border-radius: 0px
+  custom_fields:
+    message:
+      - align-self: center
+      - justify-self: center
+      - height: 100%
+      - width: 100%
+      - position: absolute
+      - justify-content: center
+      - text-align: start
+custom_fields:
+  message:
+    card:
+      type: iframe
+      url: /local/ringing-alarm.html
+      aspect_ratio: 50%

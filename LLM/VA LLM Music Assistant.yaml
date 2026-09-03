@@ -1,5 +1,5 @@
 blueprint:
-  name: "View Assist LLM Music Assistant"
+  name: "VA - LLM Music Assistant"
   description: "High-performance voice control for Music Assistant with dynamic satellite target detection via Portal Sensors, structured extraction using ai_task.generate_data, fast-path hardware controls, and strict remote speaker validation."
   author: Lonebaggie
   homeassistant:
@@ -87,59 +87,6 @@ blueprint:
             text:
               multiple: true
 
-        set_volume_sentences:
-          name: Set Volume Sentences
-          description: Trigger pattern for absolute volume setting (bypasses AI).
-          default:
-            - "set [the] volume [to] {query} [on remote speaker]"
-            - "set music volume [to] {query} [on remote speaker]"
-          selector:
-            text:
-              multiple: true
-
-        volume_up_sentences:
-          name: Volume Up Sentences
-          description: Fast-path volume up sentences (structured to avoid built-in intent timeout).
-          default:
-            - "[raise|increase] [the] volume [up] [on remote speaker]"
-            - "turn [the] music up [on remote speaker]"
-            - "make it louder [on remote speaker]"
-          selector:
-            text:
-              multiple: true
-
-        volume_down_sentences:
-          name: Volume Down Sentences
-          description: Fast-path volume down sentences (structured to avoid built-in intent timeout).
-          default:
-            - "[lower|decrease] [the] volume [down] [on remote speaker]"
-            - "turn [the] music down [on remote speaker]"
-            - "make it quieter [on remote speaker]"
-          selector:
-            text:
-              multiple: true
-
-    # ==================================================================
-    # SECTION 3: Audio Adjustments
-    # ==================================================================
-    audio_settings_section:
-      name: Audio Adjustments
-      description: Adjust hardware volume behavior.
-      icon: mdi:volume-high
-      collapsed: true
-      input:
-        volume_step_percentage:
-          name: Volume Step Percentage
-          description: Percentage to raise or lower the volume on 'Volume Up' / 'Volume Down'.
-          default: 5
-          selector:
-            number:
-              min: 1
-              max: 20
-              step: 1
-              unit_of_measurement: "%"
-              mode: slider
-
 # ----------------------------------------------------------------------
 # Dynamic Triggers (Assigned Input Sentences -> Trigger IDs)
 # ----------------------------------------------------------------------
@@ -157,15 +104,6 @@ triggers:
   - trigger: conversation
     command: !input prev_trigger_sentences
     id: previous_track
-  - trigger: conversation
-    command: !input set_volume_sentences
-    id: set_volume
-  - trigger: conversation
-    command: !input volume_up_sentences
-    id: volume_up
-  - trigger: conversation
-    command: !input volume_down_sentences
-    id: volume_down
 
 # ----------------------------------------------------------------------
 # Action Pipeline
@@ -178,7 +116,6 @@ action:
       remote_player: !input remote_speaker
       ai_engine: !input ai_task_entity
       remote_modifier: !input remote_speaker_trigger_phrase
-      step_pct: !input volume_step_percentage
       trig_dev_id: '{{trigger.device_id}}'
       target_satellite_device: '{{ view_assist_entity(trigger.device_id) }}'
       target_mediaplayer_device: '{{ state_attr(target_satellite_device, ''mediaplayer_device'')}}'
@@ -272,55 +209,7 @@ action:
             target:
               entity_id: "{{ target_player }}"
 
-      # Branch 4: Absolute Volume Set (Mapped to 0-18 scale)
-      - conditions:
-          - condition: trigger
-            id: set_volume
-        sequence:
-          - alias: "Set Exact Hardware Volume Level (0-18)"
-            action: number.set_value
-            target:
-              entity_id: "{{ speaker_vol }}"
-            data:
-              value: >-
-                {% set num = trigger.slots.query | default('50') | replace('%', '') | trim | float(50) %}
-                {% set calculated_vol = ((num / 100.0) * 18) | round(0) %}
-                {{ calculated_vol | clamp(0, 18) }}
-
-      # Branch 5: Relative Volume Up (Fast Path mapped to 0-18 scale)
-      - conditions:
-          - condition: trigger
-            id: volume_up
-        sequence:
-          - alias: "Increase Volume by User Step %"
-            action: number.set_value
-            target:
-              entity_id: "{{ speaker_vol }}"
-            data:
-              value: >-
-                {% set current = states(speaker_vol) | float(9) %}
-                {% set delta = (((step_pct | float(5)) / 100.0) * 18) | round(0) %}
-                {% set delta = 1 if delta < 1 else delta %}
-                {{ (current + delta) | clamp(0, 18) }}
-
-      # Branch 6: Relative Volume Down (Fast Path mapped to 0-18 scale)
-      - conditions:
-          - condition: trigger
-            id: volume_down
-        sequence:
-          - alias: "Decrease Volume by User Step %"
-            action: number.set_value
-            target:
-              entity_id: "{{ speaker_vol }}"
-            data:
-              value: >-
-                {% set current = states(speaker_vol) | float(9) %}
-                {% set delta = (((step_pct | float(5)) / 100.0) * 18) | round(0) %}
-                {% set delta = 1 if delta < 1 else delta %}
-                {{ (current - delta) | clamp(0, 18) }}
-
-
-      # Branch 7: Complex Play Query -> Delegate to Home Assistant AI Task Engine
+      # Branch 5: Complex Play Query -> Delegate to Home Assistant AI Task Engine
 
       - conditions:
           - condition: trigger

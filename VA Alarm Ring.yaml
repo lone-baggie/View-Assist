@@ -1,0 +1,56 @@
+blueprint:
+  name: VA Alarms Rings
+  author: "Lone baggie"
+  homeassistant:
+    min_version: 2024.6.0
+  description: >-
+    Automatically navigates View Assist to a selected dashboard view, sets the alarm volume, 
+    and triggers the alarm switch when the active alarm sensor turns on.
+  domain: automation
+  input:
+    active_alarm_sensor:
+      name: Active Alarm Sensor
+      description: The binary sensor that triggers when an alarm starts ringing.
+      selector:
+        entity:
+          filter:
+            domain: binary_sensor
+    alarm_volume_setting:
+      name: Alarm Volume
+      description: Set the desired volume level for the alarm (0 to 18).
+      default: 9
+      selector:
+        number:
+          min: 0
+          max: 18
+          step: 1
+          mode: slider
+
+mode: single
+
+trigger:
+  - platform: state
+    entity_id: !input active_alarm_sensor
+    to: "on"
+    id: ringing
+
+condition: []
+
+action:
+  - variables:
+      media: '{{ state_attr(trigger.entity_id, "media_player") }}'
+      device: '{{ device_id(media) }}'
+      va_sensor: '{{ view_assist_entity(device) }}'
+      name: '{{ state_attr(va_sensor, "display_device") | replace("va-", "vaca_") }}'
+      alarm: 'switch.{{ name }}_alarm'
+      alarm_vol: 'number.{{ name }}_alarm_volume'
+      target_volume: !input alarm_volume_setting
+  - action: number.set_value
+    target:
+      entity_id: '{{ alarm_vol }}'
+    data:
+      value: '{{ target_volume }}'
+  - action: switch.turn_on
+    target:
+      entity_id: '{{ alarm }}'
+    data: {}

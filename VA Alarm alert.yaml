@@ -1,0 +1,72 @@
+blueprint:
+  name: "VA Alarm Alert"
+  author: "Lone baggie"
+  homeassistant:
+    min_version: 2024.6.0
+  description: "Display an alarm alert if alarm rings"
+  domain: automation
+  input:
+    alarm_switches:
+      name: Alarm Switches
+      description: "Select all the VACA alarm switches you want to monitor."
+      selector:
+        entity:
+          integration: vaca
+          domain: switch
+          multiple: true
+  
+    alarm_path:
+      name: Alarm Path
+      description: "Dashboard path to navigate to when the alarm rings."
+      default: "/dashboard-portal/alarm-ringing"
+      selector:
+        text:
+    home_path:
+      name: Home/Saver Path
+      description: "Dashboard path to navigate to when the alarm goes quiet."
+      default: "/dashboard-portal/screen-saver"
+      selector:
+        text:
+
+mode: single
+
+trigger:
+  - trigger: state
+    entity_id: !input alarm_switches
+    to: "on"
+    id: ringing
+  - trigger: state
+    entity_id: !input alarm_switches
+    to: "off"
+    id: quiet
+
+action:
+  - variables:
+      # Inject blueprint input variables into action scope
+      alarm_path_var: !input alarm_path
+      home_path_var: !input home_path
+      # Extract trigger entity and fetch its View Assist display sensor dynamically
+      entity: "{{ trigger.entity_id }}"
+      device: "{{ device_id(entity) }}"
+      va_sensor: "{{ view_assist_entity(device) }}"
+
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - ringing
+        sequence:
+          - action: view_assist.navigate
+            data:
+              device: "{{ va_sensor }}"
+              path: "{{ alarm_path_var }}"
+              revert_timeout: 60
+      - conditions:
+          - condition: trigger
+            id:
+              - quiet
+        sequence:
+          - action: view_assist.navigate
+            data:
+              device: "{{ va_sensor }}"
+              path: "{{ home_path_var }}"

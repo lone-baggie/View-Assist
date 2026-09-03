@@ -1,0 +1,127 @@
+blueprint:
+  name: "VA - volume control"
+  description: "Voice volume control"
+  author: Lonebaggie
+  homeassistant:
+    min_version: 2024.6.0
+  domain: automation
+  input:
+    set_volume_sentences:
+      name: Set Volume Sentences
+      description: Trigger pattern for absolute volume setting (bypasses AI).
+      default:
+        - "set [the] volume [to] {query} [on remote speaker]"
+        - "set music volume [to] {query} [on remote speaker]"
+      selector:
+        text:
+          multiple: true
+
+    volume_up_sentences:
+      name: Volume Up Sentences
+      description: Fast-path volume up sentences (structured to avoid built-in intent timeout).
+      default:
+        - "[raise|increase] [the] volume [up] [on remote speaker]"
+        - "turn [the] music up [on remote speaker]"
+        - "make it louder [on remote speaker]"
+        - "volume up"
+      selector:
+        text:
+          multiple: true
+
+    volume_down_sentences:
+      name: Volume Down Sentences
+      description: Fast-path volume down sentences (structured to avoid built-in intent timeout).
+      default:
+        - "[lower|decrease] [the] volume [down] [on remote speaker]"
+        - "turn [the] music down [on remote speaker]"
+        - "make it quieter [on remote speaker]"
+        - "volume down"
+      selector:
+        text:
+          multiple: true
+    volume_step_percentage:
+      name: Volume Step Percentage
+      description: Percentage to raise or lower the volume on 'Volume Up' / 'Volume Down'.
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 20
+          step: 1
+          unit_of_measurement: "%"
+          mode: slider
+
+# ----------------------------------------------------------------------
+# Dynamic Triggers (Assigned Input Sentences -> Trigger IDs)
+# ----------------------------------------------------------------------
+triggers:
+
+  - trigger: conversation
+    command: !input set_volume_sentences
+    id: set_volume
+  - trigger: conversation
+    command: !input volume_up_sentences
+    id: volume_up
+  - trigger: conversation
+    command: !input volume_down_sentences
+    id: volume_down
+
+# ----------------------------------------------------------------------
+# Action Pipeline
+# ----------------------------------------------------------------------
+action:
+  # Step 1: Bind Blueprint inputs & dynamically resolve Portal Sensor Attributes
+  - alias: "Process volume controls"
+    variables:
+      step_pct: !input volume_step_percentage
+      trig_dev_id: '{{trigger.device_id}}'
+      device_name: "{{ device_attr(trig_dev_id, 'name') | lower | replace(' ', '_') if trig_dev_id != '' else '' }}"
+      speaker_vol: "number.{{ device_name }}_voice_volume"
+      vol: >
+         {% set vol_calc = (states(speaker_vol)|float(0))/18|round(2) %}
+         {{ vol_calc }}
+
+  - choose:
+      # Branch 1: Stop / Pause
+      - conditions:
+          - condition: trigger
+            id: set_volume
+        sequence:
+          - alias: "Set Exact Hardware Volume Level (0-18)"
+            action: number.set_value
+            target:
+              entity_id: "{{ speaker_vol }}"
+            data:
+              value: >-
+                {% set num = trigger.slots.query | default('50') | replace('%', '') | trim | float(50) %}
+                {% set calculated_vol = ((num / 100.0) * 18) | round(0) %}
+                {{ calculated_vol | clamp(0, 18) }}
+      - conditions:
+          - condition: trigger
+            id: volume_up
+        sequence:
+          - alias: "Increase Volume by User Step %"
+            action: number.set_value
+            target:
+              entity_id: "{{ speaker_vol }}"
+            data:
+              value: >-
+                {% set current = states(speaker_vol) | float(9) %}
+                {% set delta = (((step_pct | float(5)) / 100.0) * 18) | round(0) %}
+                {% set delta = 1 if delta < 1 else delta %}
+                {{ (current + delta) | clamp(0, 18) }}
+      - conditions:
+          - condition: trigger
+            id: volume_down
+        sequence:
+          - alias: "Decrease Volume by User Step %"
+            action: number.set_value
+            target:
+              entity_id: "{{ speaker_vol }}"
+            data:
+              value: >-
+                {% set current = states(speaker_vol) | float(9) %}
+                {% set delta = (((step_pct | float(5)) / 100.0) * 18) | round(0) %}
+                {% set delta = 1 if delta < 1 else delta %}
+                {{ (current - delta) | clamp(0, 18) }}
+mode: single
