@@ -31,7 +31,7 @@ mode: parallel
 max: 10
 
 triggers:
-  - trigger: illuminance.changed
+  - trigger: illuminance.crossed_threshold
     target:
       entity_id: !input light_sensors
     options:
@@ -40,8 +40,12 @@ triggers:
         value:
           active_choice: number
           number: !input threshold_lux
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 10
     id: dark
-  - trigger: illuminance.changed
+  - trigger: illuminance.crossed_threshold
     target:
       entity_id: !input light_sensors
     options:
@@ -50,7 +54,12 @@ triggers:
         value:
           active_choice: number
           number: !input threshold_lux
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 10
     id: light
+
 
 action:
   - variables:
@@ -61,17 +70,21 @@ action:
       # Derived target entity string
       target_entity: >-
         {{ trigger_entity.replace("sensor", "switch").replace("light_level","screen") }}
-      
-      # Determine action: 
-      # Screen Saver mode: dark -> ON, light -> OFF
-      # Screen mode (inverted): dark -> OFF, light -> ON
-      target_action: >-
-        {% if trigger_id == 'light' %}
-          turn_on
-        {% else %}
-          turn_off
-        {% endif %}
-
-  - action: "switch.{{ target_action }}"
-    target:
-      entity_id: "{{ target_entity }}"
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: 'light'
+        sequence: 
+          - action: switch.turn_on
+            metadata: {}
+            target:
+              entity_id: '{{target_entity}}'
+            data: {}
+      - conditions:
+          - condition: trigger
+            id: 'dark'
+        sequence: 
+          - action: switch.turn_off
+            metadata: {}
+            target:
+              entity_id: '{{target_entity}}'

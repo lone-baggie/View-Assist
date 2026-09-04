@@ -256,7 +256,7 @@ action:
                     2. "artist": Extract any artist mentioned in the request (e.g., "by Pink Floyd", "Queen").
                     3. "album": Extract any album mentioned in the request.
                     4. "media_type": Classify the media type. Must be one of: artist, album, track, playlist, radio, podcast.
-                       - Use "radio" if a radio station, stream, or channel is mentioned.
+                       - Use "radio" if a radio station or channel is mentioned.
                        - Use "album" if an album title is mentioned.
                        - Use "artist" if playing an artist's catalog.
                        - Use "track" if a specific song is requested.
@@ -302,8 +302,8 @@ action:
                 data:
                   media_id: "{{ parsed_intent.data.media_id }}"
                   enqueue: "play"
-                  media_type: "{{ parsed_intent.data.media_type | default(omit) }}"
-                  artist: "{{ parsed_intent.data.artist | default(omit) }}"
-                  album: "{{ parsed_intent.data.album | default(omit) }}"
+                  media_type: "{{ parsed_intent.data.media_type  }}"
+                  artist: "{{ parsed_intent.data.artist }}"
+                  album: "{{ parsed_intent.data.album }}"
 
 mode: single
