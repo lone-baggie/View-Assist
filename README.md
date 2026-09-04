@@ -19,6 +19,7 @@ The dashboard examples supplied must be added to the original View-Assist dashbo
 * Delete file contents of the manual card.  
 * Cut and paste the YAML file contents  into the blank card and save.
 
+There is also a complete dashboard example dashboard.yml. Simply create a new dashboard, select the raw configuration editor. Delete any existing code and paste the entire script and save. 
 ---
 
 ## 📋 Blueprint Overview
