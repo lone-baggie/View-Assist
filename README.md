@@ -1,4 +1,4 @@
-# View Assist
+﻿# View Assist
 
 Welcome to View Assist assets for the Facebook Portal 
 
@@ -13,13 +13,16 @@ Alarms are provided via a separate integration, [Voice Alarms](https://github.co
 The dashboard examples supplied must be added to the original View-Assist dashboard, as they contain variables obtained from the default dashboard. To add one of the dashboard YAML files views to the existing view-assist dashboard:
 
 * Edit existing View Assist dashboard  
-* Add a new view. Ensure the name of the view is the same as the YAML file you wish to use  
-* Ensure the view created is panel view (one card)  
-* Once created, add a new card. Select the manual card  
+* Add a new view. Ensure the name of the view is the same as the YAML file you wish to use.  
+* Ensure the view created is panel view (one card).  
+* Once created, add a new card. Select the manual card.  
 * Delete file contents of the manual card.  
-* Cut and paste the YAML file contents  into the blank card and save.
+* Cut and paste the YAML file contents into the blank card and save.
 
-There is also a complete dashboard example dashboard.yml. Simply create a new dashboard, select the raw configuration editor. Delete any existing code and paste the entire script and save. 
+There is also a complete example dashboard.yml. Simply create a new dashboard and select the raw configuration editor. Delete any existing code and paste the entire script and save. 
+**Note some of the individual views now require variables created in the dashboard. yml** 
+
+
 ---
 
 ## 📋 Blueprint Overview
